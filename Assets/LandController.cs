@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,14 @@ public class LandController : MonoBehaviour
     public Material originalMaterial;
     public MeshRenderer meshRenderer;
 
- 
+    [ShowInInspector]
+    public string plz { get; set; }
+    [ShowInInspector]
+    public string note { get; set; }
+    [ShowInInspector]
+    public int einwohner { get; set; }
+    [ShowInInspector]
+    public double qkm { get; set; }
 
     private void OnMouseEnter()
     {

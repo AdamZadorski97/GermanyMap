@@ -60,7 +60,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
     public float scale = 100000; // Adjust the scale factor as needed
     public float simplify = 0.001f;
-    
+
     public Vector3 pivotOffset = Vector3.zero; // Offset for adjusting the mesh pivot
 
     [Button]
@@ -113,23 +113,31 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         foreach (var ring in polygon)
                         {
-                            foreach (var coordinate in ring)
+                            for (int i = 0; i < ring.Count; i++)
                             {
-                                if (coordinate.coordinates.Length < 2) break;
-                                // Assuming your coordinates represent longitude (x), latitude (y), and z as 0
-                                Vector3 position = new Vector3(
-                                    (float)coordinate.coordinates[0] * scale, // Scale the longitude
-                                    (float)coordinate.coordinates[1] * scale, // Scale the latitude
-                                    0f
-                                );
-                                lineRendererPositions.Add(position);
-                                innerMeshPositions.Add(position);
+                                var coordinate = ring[i];
+                                if (coordinate.coordinates.Length >= 2)
+                                {
+                                    // Assuming your coordinates represent longitude (x), latitude (y), and z as 0
+                                    Vector3 position = new Vector3(
+                                        (float)coordinate.coordinates[0] * scale, // Scale the longitude
+                                        (float)coordinate.coordinates[1] * scale, // Scale the latitude
+                                        0f
+                                    );
+                                    lineRendererPositions.Add(position);
+                                    innerMeshPositions.Add(position);
+                                }
                             }
                         }
                     }
+                    LandController landController = land.GetComponent<LandController>();
+                    landController.plz = feature.properties.plz;
+                    landController.note = feature.properties.note;
+                    landController.einwohner = feature.properties.einwohner;
+                    landController.qkm = feature.properties.qkm;
 
                     // Create the outer LineRenderer from the LineRenderer positions
-                    LineRenderer lineRenderer = land.GetComponent<LandController>().lineRenderer;
+                    LineRenderer lineRenderer = landController.lineRenderer;
                     lineRenderer.positionCount = lineRendererPositions.Count;
                     lineRenderer.SetPositions(lineRendererPositions.ToArray());
 
@@ -141,7 +149,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices, center + pivotOffset);
 
                     // Assign the mesh to the GameObject
-                    MeshFilter meshFilter = land.GetComponent<LandController>().meshFilter;
+                    MeshFilter meshFilter = landController.meshFilter;
                     if (meshFilter != null)
                     {
                         meshFilter.sharedMesh = mesh;
@@ -153,7 +161,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     // Move the GameObject to the center position
                     land.transform.position = center;
 
-                    TextMesh textMesh = land.GetComponent<LandController>().textMesh;
+                    TextMesh textMesh = landController.textMesh;
 
                     // Set the text of the TextMesh to the GameObject's name
                     if (textMesh != null)
