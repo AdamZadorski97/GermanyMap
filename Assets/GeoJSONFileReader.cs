@@ -104,28 +104,32 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     // Create a new GameObject for each feature
                     GameObject land = Instantiate(landPrefab);
-
+                    land.gameObject.name += feature.geometry.type;
                     // Extract coordinates for the LineRenderer and the inner mesh
                     List<Vector3> lineRendererPositions = new List<Vector3>();
                     List<Vector3> innerMeshPositions = new List<Vector3>();
 
-                    foreach (var polygon in feature.geometry.coordinates)
+                    if (feature.geometry.type == "MultiPolygon" || feature.geometry.type == "Polygon")
                     {
-                        foreach (var ring in polygon)
+                        // Handle both MultiPolygon and Polygon geometries
+                        foreach (var polygon in feature.geometry.coordinates)
                         {
-                            for (int i = 0; i < ring.Count; i++)
+                            foreach (var ring in polygon)
                             {
-                                var coordinate = ring[i];
-                                if (coordinate.coordinates.Length >= 2)
+                                for (int i = 0; i < ring.Count; i++)
                                 {
-                                    // Assuming your coordinates represent longitude (x), latitude (y), and z as 0
-                                    Vector3 position = new Vector3(
-                                        (float)coordinate.coordinates[0] * scale, // Scale the longitude
-                                        (float)coordinate.coordinates[1] * scale, // Scale the latitude
-                                        0f
-                                    );
-                                    lineRendererPositions.Add(position);
-                                    innerMeshPositions.Add(position);
+                                    var coordinate = ring[i];
+                                    if (coordinate.coordinates.Length >= 2)
+                                    {
+                                        // Swap longitude and latitude to match the [longitude, latitude] format
+                                        Vector3 position = new Vector3(
+                                            (float)coordinate.coordinates[1] * scale, // Scale the latitude
+                                            (float)coordinate.coordinates[0] * scale, // Scale the longitude
+                                            0f
+                                        );
+                                        lineRendererPositions.Add(position);
+                                        innerMeshPositions.Add(position);
+                                    }
                                 }
                             }
                         }
