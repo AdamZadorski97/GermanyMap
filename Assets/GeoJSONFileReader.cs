@@ -2,7 +2,6 @@ using Newtonsoft.Json;
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
-using System;
 using Sirenix.OdinInspector;
 using System.Linq;
 
@@ -10,6 +9,7 @@ public class GeoJSONCoordinate
 {
     public double[] coordinates { get; set; }
 }
+
 public class GeoJSONGeometry
 {
     public string type { get; set; }
@@ -60,6 +60,8 @@ public class GeoJSONFileReader : MonoBehaviour
 
     public float scale = 100000; // Adjust the scale factor as needed
     public float simplify = 0.001f;
+    
+    public Vector3 pivotOffset = Vector3.zero; // Offset for adjusting the mesh pivot
 
     [Button]
     public void LoadGeoJSON()
@@ -111,7 +113,6 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         foreach (var ring in polygon)
                         {
-
                             foreach (var coordinate in ring)
                             {
                                 if (coordinate.coordinates.Length < 2) break;
@@ -134,7 +135,10 @@ public class GeoJSONFileReader : MonoBehaviour
 
                     // Triangulate the inner mesh and create a 2D mesh
                     int[] indices = TriangulatePolygons(innerMeshPositions);
-                    Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices);
+                    Vector3 center = CalculateMeshCenter(innerMeshPositions);
+
+                    // Create the mesh with the adjusted pivot point
+                    Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices, center + pivotOffset);
 
                     // Assign the mesh to the GameObject
                     MeshFilter meshFilter = land.GetComponent<LandController>().meshFilter;
@@ -142,11 +146,9 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         meshFilter.sharedMesh = mesh;
                     }
+
                     MeshCollider meshCollider = land.AddComponent<MeshCollider>();
                     meshCollider.sharedMesh = mesh;
-
-                    // Calculate the center point of the mesh
-                    Vector3 center = CalculateMeshCenter(mesh);
 
                     // Move the GameObject to the center position
                     land.transform.position = center;
@@ -170,12 +172,15 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
-    private Mesh CreateMeshFromIndices(List<Vector3> vertices, int[] indices)
+    private Mesh CreateMeshFromIndices(List<Vector3> vertices, int[] indices, Vector3 pivot)
     {
         Mesh mesh = new Mesh();
 
+        // Calculate the offset to adjust the pivot correctly
+        Vector3 offset = -pivot;
+
         // Set vertices
-        mesh.vertices = vertices.ToArray();
+        mesh.vertices = vertices.Select(v => v + offset).ToArray();
 
         // Set triangles (indices)
         mesh.triangles = indices;
@@ -183,25 +188,18 @@ public class GeoJSONFileReader : MonoBehaviour
         // Recalculate normals to ensure proper shading
         mesh.RecalculateNormals();
 
-        // Ensure that all normals are facing outward
-        Vector3[] normals = mesh.normals;
-        for (int i = 0; i < normals.Length; i++)
-        {
-            normals[i] = -normals[i];
-        }
-        mesh.normals = normals;
-
         // Recalculate bounds for correct culling
         mesh.RecalculateBounds();
 
         return mesh;
     }
 
-    private Vector3 CalculateMeshCenter(Mesh mesh)
+    private Vector3 CalculateMeshCenter(List<Vector3> vertices)
     {
-        Vector3[] vertices = mesh.vertices;
-        if (vertices.Length <= 1) return Vector3.zero;
-
+        if (vertices.Count <= 0)
+        {
+            return Vector3.zero;
+        }
 
         Vector3 min = vertices[0];
         Vector3 max = vertices[0];
@@ -226,4 +224,4 @@ public class GeoJSONFileReader : MonoBehaviour
 
         return indices;
     }
-} 
+}
