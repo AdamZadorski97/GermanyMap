@@ -5,7 +5,6 @@ using System.IO;
 using System;
 using Sirenix.OdinInspector;
 using System.Linq;
-using System.Collections;
 
 public class GeoJSONCoordinate
 {
@@ -20,7 +19,7 @@ public class GeoJSONGeometry
 public class GeoJSONData
 {
     public string type { get; set; }
-    public List<GeoJSONFeature> features { get; set; }
+    public GeoJSONFeature[] features { get; set; }
 }
 
 public class Crs
@@ -53,197 +52,178 @@ public class GeoJSONFileReader : MonoBehaviour
 {
     [SerializeField]
     public string geoJSONFilePath;
+
     private GeoJSONData geoJSONData;
+
     [SerializeField]
     private GameObject landPrefab;
-    public float scale = 100000;
+
+    public float scale = 100000; // Adjust the scale factor as needed
     public float simplify = 0.001f;
 
     [Button]
     public void LoadGeoJSON()
     {
-        Debug.Log("Start Load GeoJson");
         string filePath = Path.Combine(Application.streamingAssetsPath, geoJSONFilePath);
+
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
+
+            // Create settings for JSON deserialization with the custom converter
             var settings = new JsonSerializerSettings
             {
                 Converters = new List<JsonConverter> { new GeoJSONCoordinateConverter() }
             };
+
+            // Deserialize using JSON.NET with the custom converter
             geoJSONData = JsonConvert.DeserializeObject<GeoJSONData>(json, settings);
-            if (geoJSONData != null) { Debug.Log("GeoJSON data parsed successfully."); }
-            else { Debug.LogError("Failed to parse GeoJSON data."); }
-        }
-        else
-        {
-            Debug.Log("Path doesn't exists");
+
+            if (geoJSONData != null)
+            {
+                Debug.Log("GeoJSON data parsed successfully.");
+            }
+            else
+            {
+                Debug.LogError("Failed to parse GeoJSON data.");
+            }
         }
     }
 
     [Button]
-    public void StartDrawingMeshes()
+    public void Draw2DMeshesFromLineRenderers()
     {
-        StartCoroutine(Draw2DMeshesFromLineRenderers());
-    }
-
-    private IEnumerator Draw2DMeshesFromLineRenderers()
-    {
-        if (geoJSONData == null || geoJSONData.features == null)
+        if (geoJSONData != null && geoJSONData.features != null)
         {
-            Debug.LogError("No GeoJSON data or features found.");
-            yield break;  // exit the coroutine
-        }
-
-        Debug.Log($"Number of features: {geoJSONData.features.Count}");
-        int index = 0;
-
-        foreach (GeoJSONFeature feature in geoJSONData.features)
-        {
-            Debug.Log($"Feature Type: {feature.geometry?.type}");
-            if (feature.geometry != null && (feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon"))
+            int index = 0;
+            foreach (GeoJSONFeature feature in geoJSONData.features)
             {
-                List<Vector3> lineRendererPositions = new List<Vector3>();
-                List<Vector3> innerMeshPositions = new List<Vector3>();
-
-                if (feature.geometry.type == "MultiPolygon")
+                if (feature.geometry != null && feature.geometry.coordinates != null)
                 {
+                    // Create a new GameObject for each feature
+                    GameObject land = Instantiate(landPrefab);
+
+                    // Extract coordinates for the LineRenderer and the inner mesh
+                    List<Vector3> lineRendererPositions = new List<Vector3>();
+                    List<Vector3> innerMeshPositions = new List<Vector3>();
+
                     foreach (var polygon in feature.geometry.coordinates)
                     {
                         foreach (var ring in polygon)
                         {
-                            foreach (var coordPair in ring)
+
+                            foreach (var coordinate in ring)
                             {
-                                ProcessCoordinate(coordPair, scale, lineRendererPositions, innerMeshPositions);
+                                if (coordinate.coordinates.Length < 2) break;
+                                // Assuming your coordinates represent longitude (x), latitude (y), and z as 0
+                                Vector3 position = new Vector3(
+                                    (float)coordinate.coordinates[0] * scale, // Scale the longitude
+                                    (float)coordinate.coordinates[1] * scale, // Scale the latitude
+                                    0f
+                                );
+                                lineRendererPositions.Add(position);
+                                innerMeshPositions.Add(position);
                             }
                         }
                     }
-                }
-                else if (feature.geometry.type == "Polygon")
-                {
-                    foreach (var ring in feature.geometry.coordinates)
+
+                    // Create the outer LineRenderer from the LineRenderer positions
+                    LineRenderer lineRenderer = land.GetComponent<LandController>().lineRenderer;
+                    lineRenderer.positionCount = lineRendererPositions.Count;
+                    lineRenderer.SetPositions(lineRendererPositions.ToArray());
+
+                    // Triangulate the inner mesh and create a 2D mesh
+                    int[] indices = TriangulatePolygons(innerMeshPositions);
+                    Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices);
+
+                    // Assign the mesh to the GameObject
+                    MeshFilter meshFilter = land.GetComponent<LandController>().meshFilter;
+                    if (meshFilter != null)
                     {
-                        foreach (var coordPair in ring)
-                        {
-                            foreach (var coord in coordPair)
-                            {
-                                ProcessCoordinate(coord, scale, lineRendererPositions, innerMeshPositions);
-                            }
-                        }
+                        meshFilter.sharedMesh = mesh;
                     }
+                    MeshCollider meshCollider = land.AddComponent<MeshCollider>();
+                    meshCollider.sharedMesh = mesh;
+
+                    // Calculate the center point of the mesh
+                    Vector3 center = CalculateMeshCenter(mesh);
+
+                    // Move the GameObject to the center position
+                    land.transform.position = center;
+
+                    TextMesh textMesh = land.GetComponent<LandController>().textMesh;
+
+                    // Set the text of the TextMesh to the GameObject's name
+                    if (textMesh != null)
+                    {
+                        textMesh.text = index.ToString();
+                    }
+
+                    // Increment the index for naming purposes
+                    index++;
                 }
-
-                GameObject land = Instantiate(landPrefab);
-                land.name = feature.properties.plz + feature.geometry.type;
-                LineRenderer lineRenderer = land.GetComponent<LandController>().lineRenderer;
-                lineRenderer.positionCount = lineRendererPositions.Count;
-                lineRenderer.SetPositions(lineRendererPositions.ToArray());
-                int[] indices = TriangulateMultiPolygon(lineRendererPositions).ToArray();
-                Mesh mesh = CreateMeshFromIndices(lineRendererPositions.Concat(innerMeshPositions).ToList(), indices);
-                Vector3 center = CalculateMeshCenter(mesh);
-                land.GetComponent<LandController>().meshFilter.mesh = mesh;
-                land.transform.position = center;
-                TextMesh textMesh = land.GetComponent<LandController>().textMesh;
-                textMesh.text = $"{feature.properties.plz}\n {lineRendererPositions.Count}";
-
-                index++;
-                yield return new WaitForEndOfFrame();
             }
-            else
-            {
-                Debug.LogWarning("Feature geometry or polygon/multi-polygon data is null");
-            }
-        }
-    }
-
-    private void ProcessCoordinate(GeoJSONCoordinate coord, float scale, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
-    {
-        double[] coordPair = coord.coordinates;
-        if (coordPair.Length >= 2)
-        {
-            Vector3 position = new Vector3((float)coordPair[0] * scale, (float)coordPair[1] * scale, 0f);
-            lineRendererPositions.Add(position);
-            innerMeshPositions.Add(position);
         }
         else
         {
-            Debug.LogWarning("Skipping invalid coordinate with fewer than 2 elements.");
+            Debug.LogError("No GeoJSON data or features found.");
         }
     }
 
     private Mesh CreateMeshFromIndices(List<Vector3> vertices, int[] indices)
     {
         Mesh mesh = new Mesh();
+
+        // Set vertices
         mesh.vertices = vertices.ToArray();
+
+        // Set triangles (indices)
         mesh.triangles = indices;
+
+        // Recalculate normals to ensure proper shading
         mesh.RecalculateNormals();
+
+        // Ensure that all normals are facing outward
         Vector3[] normals = mesh.normals;
-        for (int i = 0; i < normals.Length; i++) { normals[i] = -normals[i]; }
+        for (int i = 0; i < normals.Length; i++)
+        {
+            normals[i] = -normals[i];
+        }
         mesh.normals = normals;
+
+        // Recalculate bounds for correct culling
         mesh.RecalculateBounds();
+
         return mesh;
     }
 
     private Vector3 CalculateMeshCenter(Mesh mesh)
     {
         Vector3[] vertices = mesh.vertices;
-        if (vertices.Length == 0)
-        {
-            Debug.LogError("Vertices array is empty.");
-            return Vector3.zero;  // return a zero vector if the array is empty
-        }
+        if (vertices.Length <= 1) return Vector3.zero;
+
+
         Vector3 min = vertices[0];
         Vector3 max = vertices[0];
+
         foreach (Vector3 vertex in vertices)
         {
             min = Vector3.Min(min, vertex);
             max = Vector3.Max(max, vertex);
         }
-        return (min + max) * 0.5f;
+
+        return (min + max) / 2f;
     }
 
-    private List<int> TriangulatePolygon(List<Vector3> vertices)
+    private int[] TriangulatePolygons(List<Vector3> vertices)
     {
-        // Initialize a list to store indices
-        List<int> indices = new List<int>();
+        // Convert List<Vector3> to Vector3[]
+        Vector3[] verticesArray = vertices.ToArray();
 
-        // Add your triangulation logic for a single Polygon here
-        // Example logic: return a list of indices that connect the vertices sequentially
-        int numVertices = vertices.Count;
-
-        for (int i = 1; i < numVertices - 1; i++)
-        {
-            indices.Add(0);
-            indices.Add(i);
-            indices.Add(i + 1);
-        }
+        // Use the Triangulator class to perform triangulation
+        Triangulator tr = new Triangulator(verticesArray);
+        int[] indices = tr.Triangulate();
 
         return indices;
     }
-
-    private List<int> TriangulateMultiPolygon(List<Vector3> vertices)
-    {
-        // Initialize a list to store indices
-        List<int> indices = new List<int>();
-
-        // Add your triangulation logic for a MultiPolygon here
-        // You need to consider multiple rings if present
-        // Example logic: return a list of indices that connect the vertices sequentially
-        // across all rings
-        // Note: You'll need to handle cases where there are multiple rings.
-
-        // Example: For simplicity, we can assume that all rings are connected sequentially.
-        // You might need more complex logic to handle more complex MultiPolygons.
-
-        int numVertices = vertices.Count;
-
-        for (int i = 1; i < numVertices - 1; i++)
-        {
-            indices.Add(0);
-            indices.Add(i);
-            indices.Add(i + 1);
-        }
-
-        return indices;
-    }
-}
+} 
