@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using UnityEngine;
 using System.Collections.Generic;
@@ -62,6 +63,12 @@ public class GeoJSONFileReader : MonoBehaviour
     public float simplify = 0.001f;
 
     public Vector3 pivotOffset = Vector3.zero; // Offset for adjusting the mesh pivot
+
+    private void Start()
+    {
+        LoadGeoJSON();
+        Draw2DMeshesFromLineRenderers();
+    }
 
     [Button]
     public void LoadGeoJSON()
