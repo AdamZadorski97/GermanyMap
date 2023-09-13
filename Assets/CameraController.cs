@@ -5,6 +5,7 @@ class CameraController : MonoBehaviour
     Vector3 touchStart;
     public float zoomOutMin = 1;
     public float zoomOutMax = 8;
+    public float currentZoom;
 
     void Update()
     {
@@ -44,6 +45,8 @@ class CameraController : MonoBehaviour
 
     void HandleZoom(float increment)
     {
-        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize - increment, zoomOutMin, zoomOutMax);
+        float calculatedZoom = Mathf.Clamp(Camera.main.orthographicSize - increment, zoomOutMin, zoomOutMax);
+        currentZoom = calculatedZoom;
+        Camera.main.orthographicSize = calculatedZoom;
     }
 }

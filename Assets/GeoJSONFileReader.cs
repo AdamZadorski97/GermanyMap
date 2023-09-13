@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using Sirenix.OdinInspector;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class GeoJSONCoordinate
 {
@@ -51,29 +52,62 @@ public class GeoJSONProperties
 
 public class GeoJSONFileReader : MonoBehaviour
 {
-    [SerializeField]
-    public string geoJSONFilePath;
-
-    private GeoJSONData geoJSONData;
-
-    [SerializeField]
-    private GameObject landPrefab;
-
+    public List<string> geoJSONFilePaths;
     public float scale = 100000; // Adjust the scale factor as needed
     public float simplify = 0.001f;
 
     public Vector3 pivotOffset = Vector3.zero; // Offset for adjusting the mesh pivot
 
+    [SerializeField] private CameraController _cameraController;
+    [SerializeField] private string geoJSONFilePath;
+    [SerializeField] private GameObject landPrefab;
+
+    private GeoJSONData geoJSONData;
+
     private void Start()
     {
-        LoadGeoJSON();
+        LoadGeoJSON(geoJSONFilePath);
         Draw2DMeshesFromLineRenderers();
     }
 
-    [Button]
-    public void LoadGeoJSON()
+    private void AdjustGeoMapping()
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, geoJSONFilePath);
+        float zoomScope = _cameraController.zoomOutMax - _cameraController.zoomOutMin;
+        int zoomStages = (int) zoomScope % geoJSONFilePaths.Count;
+
+        if (_cameraController.currentZoom >= 150)
+        {
+            LoadGeoJSON(geoJSONFilePaths[3]);
+            Draw2DMeshesFromLineRenderers();
+            return;
+        }
+
+        if (_cameraController.currentZoom >= 100 && _cameraController.currentZoom < 150)
+        {
+            LoadGeoJSON(geoJSONFilePaths[2]);
+            Draw2DMeshesFromLineRenderers();
+            return;
+        }
+
+        if (_cameraController.currentZoom >= 50 && _cameraController.currentZoom < 100)
+        {
+            LoadGeoJSON(geoJSONFilePaths[1]);
+            Draw2DMeshesFromLineRenderers();
+            return;
+        }
+
+        if (_cameraController.currentZoom >= _cameraController.zoomOutMin && _cameraController.currentZoom < 50)
+        {
+            LoadGeoJSON(geoJSONFilePaths[0]);
+            Draw2DMeshesFromLineRenderers();
+            return;
+        }
+    }
+
+    [Button]
+    public void LoadGeoJSON(string currentGeoJSONPath)
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, currentGeoJSONPath);
 
         if (File.Exists(filePath))
         {
@@ -82,7 +116,7 @@ public class GeoJSONFileReader : MonoBehaviour
             // Create settings for JSON deserialization with the custom converter
             var settings = new JsonSerializerSettings
             {
-                Converters = new List<JsonConverter> { new GeoJSONCoordinateConverter() }
+                Converters = new List<JsonConverter> {new GeoJSONCoordinateConverter()}
             };
 
             // Deserialize using JSON.NET with the custom converter

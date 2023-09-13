@@ -317,6 +317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zoomOutMin: 5
   zoomOutMax: 230
+  currentZoom: 0
 --- !u!1 &617351657
 GameObject:
   m_ObjectHideFlags: 0
@@ -513,7 +514,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd8c926f20634a545ac1c139bb46b48d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cameraController: {fileID: 519420034}
   geoJSONFilePath: plz-3stellig.geojson
+  geoJSONFilePaths:
+  - plz-1stellig.geojson
+  - plz-2stellig.geojson
+  - plz-3stellig.geojson
+  - plz-5stellig.geojson
   landPrefab: {fileID: 8249367896411087095, guid: aa060b4154e18fa499586c04e1023b31, type: 3}
   scale: 30
   simplify: 0.001
@@ -563,7 +570,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1581845708
 BoxCollider:
   m_ObjectHideFlags: 0
