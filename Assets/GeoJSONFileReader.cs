@@ -15,7 +15,8 @@ public class GeoJSONCoordinate
 public class GeoJSONGeometry
 {
     public string type { get; set; }
-    public List<List<List<GeoJSONCoordinate>>> coordinates { get; set; }
+    public List<List<GeoJSONCoordinate>> coordinates { get; set; }  // For Polygons
+    public List<List<List<GeoJSONCoordinate>>> multiCoordinates { get; set; }  // For MultiPolygons
 }
 
 public class GeoJSONData
@@ -73,7 +74,7 @@ public class GeoJSONFileReader : MonoBehaviour
     private void AdjustGeoMapping()
     {
         float zoomScope = _cameraController.zoomOutMax - _cameraController.zoomOutMin;
-        int zoomStages = (int) zoomScope % geoJSONFilePaths.Count;
+        int zoomStages = (int)zoomScope % geoJSONFilePaths.Count;
 
         if (_cameraController.currentZoom >= 150)
         {
@@ -116,7 +117,7 @@ public class GeoJSONFileReader : MonoBehaviour
             // Create settings for JSON deserialization with the custom converter
             var settings = new JsonSerializerSettings
             {
-                Converters = new List<JsonConverter> {new GeoJSONCoordinateConverter()}
+                Converters = new List<JsonConverter> { new GeoJSONCoordinateConverter() }
             };
 
             // Deserialize using JSON.NET with the custom converter
@@ -143,35 +144,53 @@ public class GeoJSONFileReader : MonoBehaviour
             {
                 if (feature.geometry != null && feature.geometry.coordinates != null)
                 {
-                    // Create a new GameObject for each feature
                     GameObject land = Instantiate(landPrefab);
                     land.gameObject.name += feature.geometry.type;
-                    // Extract coordinates for the LineRenderer and the inner mesh
                     List<Vector3> lineRendererPositions = new List<Vector3>();
                     List<Vector3> innerMeshPositions = new List<Vector3>();
 
-                    if (feature.geometry.type == "MultiPolygon" || feature.geometry.type == "Polygon")
+                    if (feature.geometry.type == "Polygon")
                     {
-                        // Handle both MultiPolygon and Polygon geometries
+                        foreach (var ring in feature.geometry.coordinates[0])  // We access the first ring directly here
+                        {
+                            var coordinate = ring;
+                            if (coordinate.coordinates.Length >= 2)
+                            {
+                                Vector3 position = new Vector3(
+                                    (float)coordinate.coordinates[1] * scale,
+                                    (float)coordinate.coordinates[0] * scale,
+                                    0f
+                                );
+                                lineRendererPositions.Add(position);
+                                innerMeshPositions.Add(position);
+                            }
+                        }
+                    }
+                    else if (feature.geometry.type == "MultiPolygon")
+                    {
                         foreach (var polygon in feature.geometry.coordinates)
                         {
-                            foreach (var ring in polygon)
+                            foreach (var geoCoord in polygon)
                             {
-                                for (int i = 0; i < ring.Count; i++)
+                                double[] coordinate = geoCoord.coordinates;
+                                if (coordinate.Length >= 2)
                                 {
-                                    var coordinate = ring[i];
-                                    if (coordinate.coordinates.Length >= 2)
-                                    {
-                                        // Swap longitude and latitude to match the [longitude, latitude] format
-                                        Vector3 position = new Vector3(
-                                            (float)coordinate.coordinates[1] * scale, // Scale the latitude
-                                            (float)coordinate.coordinates[0] * scale, // Scale the longitude
-                                            0f
-                                        );
-                                        lineRendererPositions.Add(position);
-                                        innerMeshPositions.Add(position);
-                                    }
+                                    Vector3 position = new Vector3(
+                                        (float)coordinate[1] * scale,  // Latitude
+                                        (float)coordinate[0] * scale,  // Longitude
+                                        0f
+                                    );
+                                    lineRendererPositions.Add(position);
+                                    innerMeshPositions.Add(position);
                                 }
+                            }
+
+                            // Close the loop for the LineRenderer, if needed
+                            if (lineRendererPositions.Count > 0 &&
+                                lineRendererPositions[0] != lineRendererPositions[lineRendererPositions.Count - 1])
+                            {
+                                lineRendererPositions.Add(lineRendererPositions[0]);
+                                innerMeshPositions.Add(innerMeshPositions[0]);
                             }
                         }
                     }
@@ -276,5 +295,23 @@ public class GeoJSONFileReader : MonoBehaviour
         int[] indices = tr.Triangulate();
 
         return indices;
+    }
+
+    private void ExtractCoordinatesForRendering(List<GeoJSONCoordinate> ring, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
+    {
+        for (int i = 0; i < ring.Count; i++)
+        {
+            var coordinate = ring[i];
+            if (coordinate.coordinates.Length >= 2)
+            {
+                Vector3 position = new Vector3(
+                    (float)coordinate.coordinates[1] * scale, // Scale the latitude
+                    (float)coordinate.coordinates[0] * scale, // Scale the longitude
+                    0f
+                );
+                lineRendererPositions.Add(position);
+                innerMeshPositions.Add(position);
+            }
+        }
     }
 }
