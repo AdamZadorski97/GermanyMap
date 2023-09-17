@@ -80,81 +80,88 @@ public class GeoJSONFileReader : MonoBehaviour
     {
         if (geoJSONData != null && geoJSONData.features != null)
         {
-            foreach (GeoJSONFeature feature in geoJSONData.features)
-            {
-                if (feature.geometry != null)
-                {
-                    GameObject land = Instantiate(landPrefab);
-                    List<Vector3> lineRendererPositions = new List<Vector3>();
-                    List<Vector3> innerMeshPositions = new List<Vector3>();
-
-                    if (feature.geometry.type == "Polygon")
-                    {
-                        List<List<double[]>> polygonCoordinates = ConvertJArrayToNestedList2((JArray)feature.geometry.coordinates);
-                        foreach (var linearRing in polygonCoordinates)
-                        {
-                            foreach (var coordinate in linearRing)
-                            {
-                                if (coordinate.Length >= 2)
-                                {
-                                    Vector3 position = new Vector3(
-                                        (float)coordinate[0] * scale,
-                                        (float)coordinate[1] * scale,
-                                        0f
-                                    );
-                                    lineRendererPositions.Add(position);
-                                    innerMeshPositions.Add(position);
-                                }
-                            }
-                        }
-                    }
-                    else if (feature.geometry.type == "MultiPolygon")
-                    {
-                        List<List<List<double[]>>> multiPolygonCoordinates = ConvertJArrayToNestedList((JArray)feature.geometry.coordinates);
-                        foreach (var polygon in multiPolygonCoordinates)
-                        {
-                            foreach (var linearRing in polygon)
-                            {
-                                foreach (var coordinate in linearRing)
-                                {
-                                    if (coordinate.Length >= 2)
-                                    {
-                                        Vector3 position = new Vector3(
-                                            (float)coordinate[0] * scale,
-                                            (float)coordinate[1] * scale,
-                                            0f
-                                        );
-                                        lineRendererPositions.Add(position);
-                                        innerMeshPositions.Add(position);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    LineRenderer lineRenderer = land.GetComponent<LandController>().lineRenderer;
-                    lineRenderer.positionCount = lineRendererPositions.Count;
-                    lineRenderer.SetPositions(lineRendererPositions.ToArray());
-
-                    int[] indices = TriangulatePolygons(innerMeshPositions);
-                    Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices);
-
-                    MeshFilter meshFilter = land.GetComponent<LandController>().meshFilter;
-                    if (meshFilter != null)
-                    {
-                        meshFilter.mesh = mesh;
-                    }
-
-                    MeshCollider meshCollider = land.AddComponent<MeshCollider>();
-                    meshCollider.sharedMesh = mesh;
-                }
-            }
+            ProcessGeoJSONFeatures();
         }
         else
         {
             Debug.LogError("No GeoJSON data or features found.");
         }
     }
+
+    private void ProcessGeoJSONFeatures()
+    {
+        foreach (GeoJSONFeature feature in geoJSONData.features)
+        {
+            if (feature.geometry != null)
+            {
+                List<Vector3> lineRendererPositions = new List<Vector3>();
+                List<Vector3> innerMeshPositions = new List<Vector3>();
+
+                if (feature.geometry.type == "Polygon")
+                {
+                    GameObject land = Instantiate(landPrefab);
+                    land.name = "Polygon";
+                    List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
+                    UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
+                    RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
+                }
+                else if (feature.geometry.type == "MultiPolygon")
+                {
+                    List<List<List<double[]>>> multiPolygonCoordinates = ConvertJArrayToMultiPolygonList((JArray)feature.geometry.coordinates);
+                    foreach (var polygon in multiPolygonCoordinates)
+                    {
+                        GameObject land = Instantiate(landPrefab);
+                        land.name = "MultiPolygon-Part";
+                        lineRendererPositions.Clear();
+                        innerMeshPositions.Clear();
+                        UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
+                        RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
+                    }
+                }
+            }
+        }
+    }
+
+    private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions, ref List<Vector3> innerMeshPositions)
+    {
+        foreach (var linearRing in coordinates)
+        {
+            foreach (var coordinate in linearRing)
+            {
+                if (coordinate.Length >= 2)
+                {
+                    // Swapped latitude and longitude for Unity's XY plane.
+                    Vector3 position = new Vector3(
+                        (float)coordinate[0] * scale,
+                        (float)coordinate[1] * scale,
+                        0f
+                    );
+                    lineRendererPositions.Add(position);
+                    innerMeshPositions.Add(position);
+                }
+            }
+        }
+    }
+
+    private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
+    {
+        LineRenderer lineRenderer = land.GetComponent<LandController>().lineRenderer;
+        lineRenderer.positionCount = lineRendererPositions.Count;
+        lineRenderer.SetPositions(lineRendererPositions.ToArray());
+
+        int[] indices = TriangulatePolygons(innerMeshPositions);
+        Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices);
+
+        MeshFilter meshFilter = land.GetComponent<LandController>().meshFilter;
+        if (meshFilter != null)
+        {
+            meshFilter.mesh = mesh;
+        }
+
+        MeshCollider meshCollider = land.AddComponent<MeshCollider>();
+        meshCollider.sharedMesh = mesh;
+    }
+
 
     private Mesh CreateMeshFromIndices(List<Vector3> vertices, int[] indices)
     {
@@ -174,7 +181,7 @@ public class GeoJSONFileReader : MonoBehaviour
         return indices;
     }
 
-    List<List<List<double[]>>> ConvertJArrayToNestedList(JArray jArray)
+    private List<List<List<double[]>>> ConvertJArrayToMultiPolygonList(JArray jArray)
     {
         var outerList = new List<List<List<double[]>>>();
 
@@ -199,7 +206,8 @@ public class GeoJSONFileReader : MonoBehaviour
 
         return outerList;
     }
-    List<List<double[]>> ConvertJArrayToNestedList2(JArray jArray)
+
+    private List<List<double[]>> ConvertJArrayToPolygonList(JArray jArray)
     {
         var outerList = new List<List<double[]>>();
 
