@@ -6,7 +6,7 @@ using System.IO;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json.Linq;
 using System.Collections;
-
+using MEC;
 public class GeoJSONCoordinate
 {
     public double[] coordinates { get; set; }
@@ -59,7 +59,7 @@ public class GeoJSONFileReader : MonoBehaviour
     [SerializeField] private string geoJSONFilePath;
     [SerializeField] private GameObject landPrefab;
     [SerializeField] private CameraController cameraController;
-   
+    private CoroutineHandle geoJSONProcessingHandle;
     private int currentElementIndex = 0;
     private GeoJSONData geoJSONData;
 
@@ -131,7 +131,7 @@ public class GeoJSONFileReader : MonoBehaviour
     {
         if (geoJSONData != null && geoJSONData.features != null)
         {
-            StartCoroutine(ProcessGeoJSONFeatures());
+            geoJSONProcessingHandle = Timing.RunCoroutine(ProcessGeoJSONFeatures());
         }
         else
         {
@@ -139,7 +139,7 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
-    private IEnumerator ProcessGeoJSONFeatures()
+    IEnumerator<float> ProcessGeoJSONFeatures()
     {
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
@@ -174,7 +174,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 }
             }
 
-            yield return null; // Pause the method and continue from here in the next frame.
+            yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
         }
     }
 

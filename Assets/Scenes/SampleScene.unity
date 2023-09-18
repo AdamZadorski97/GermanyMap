@@ -1126,6 +1126,7 @@ GameObject:
   - component: {fileID: 877494904}
   - component: {fileID: 877494903}
   - component: {fileID: 877494905}
+  - component: {fileID: 877494906}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1151,7 +1152,6 @@ MonoBehaviour:
   - plz-3stellig.geojson
   - plz-5stellig.geojson
   scale: 30
-  simplify: 0.001
   pivotOffset: {x: 0, y: 0, z: 0}
   zoomRanges:
   - minZoom: 180
@@ -1197,6 +1197,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27b280464a75d854b9389163b2d24906, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &877494906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 877494902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5874acfd32555c64d88e9a6fe4c0d14b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToPool: {fileID: 8249367896411087095, guid: aa060b4154e18fa499586c04e1023b31, type: 3}
+  initialPoolSize: 1000
 --- !u!1 &1068503420
 GameObject:
   m_ObjectHideFlags: 0
