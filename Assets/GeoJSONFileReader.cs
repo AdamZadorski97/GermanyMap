@@ -50,7 +50,7 @@ public class ZoomRange
 public class GeoJSONFileReader : MonoBehaviour
 {
     const string PREFS_KEY_RELOADING_ENABLED = "_ReloadingEnabled";
-    
+
     public List<string> geoJSONFilePaths;
     public float scale = 100000;
     public Vector3 pivotOffset = Vector3.zero;
@@ -75,7 +75,7 @@ public class GeoJSONFileReader : MonoBehaviour
     {
         float currentZoom = cameraController.currentZoom;
         int newElementIndex = GetCurrentElementIndex(currentZoom);
-        
+
         if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
         {
             currentElementIndex = newElementIndex;
@@ -92,7 +92,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 return i;
             }
         }
-        
+
         return 0;
     }
 
@@ -105,7 +105,7 @@ public class GeoJSONFileReader : MonoBehaviour
         LoadGeoJSON(geoJSONFilePaths[index]);
         Draw2DMeshesFromLineRenderers();
     }
-    
+
     [Button]
     public void LoadGeoJSON(string currentGeoJSONPath)
     {
@@ -141,6 +141,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
     IEnumerator<float> ProcessGeoJSONFeatures()
     {
+        int featuresProcessed = 0;
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
             if (feature.geometry != null)
@@ -153,7 +154,6 @@ public class GeoJSONFileReader : MonoBehaviour
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.SetActive(true);
                     landPrefabsClones.Add(land);
-                    land.name = "Polygon";
                     List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
@@ -163,9 +163,9 @@ public class GeoJSONFileReader : MonoBehaviour
                     List<List<List<double[]>>> multiPolygonCoordinates = ConvertJArrayToMultiPolygonList((JArray)feature.geometry.coordinates);
                     foreach (var polygon in multiPolygonCoordinates)
                     {
-                        GameObject land = Instantiate(landPrefab);
+                        GameObject land = ObjectPooler.Instance.GetPooledObject();
+                        land.SetActive(true);
                         landPrefabsClones.Add(land);
-                        land.name = "MultiPolygon-Part";
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
@@ -173,11 +173,16 @@ public class GeoJSONFileReader : MonoBehaviour
                     }
                 }
             }
-
-            yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
+            featuresProcessed++;
+            if(featuresProcessed == 20)
+            {
+                yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
+                featuresProcessed = 0;
+            }
+            
         }
     }
-
+      
     private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions, ref List<Vector3> innerMeshPositions)
     {
         foreach (var linearRing in coordinates)
@@ -204,7 +209,7 @@ public class GeoJSONFileReader : MonoBehaviour
                         lineRendererPositions.Add(position);
                         innerMeshPositions.Add(position);
                     }
-                   
+
                 }
             }
         }
@@ -212,18 +217,13 @@ public class GeoJSONFileReader : MonoBehaviour
 
     private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
     {
-        LineRenderer lineRenderer = land.GetComponent<LandController>().lineRenderer;
-        lineRenderer.positionCount = lineRendererPositions.Count;
-        lineRenderer.SetPositions(lineRendererPositions.ToArray());
+        LandController landController = land.GetComponent<LandController>();
+        landController.lineRenderer.positionCount = lineRendererPositions.Count;
+        landController.lineRenderer.SetPositions(lineRendererPositions.ToArray());
 
         int[] indices = TriangulatePolygons(innerMeshPositions);
         Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices);
-
-        MeshFilter meshFilter = land.GetComponent<LandController>().meshFilter;
-        if (meshFilter != null)
-        {
-            meshFilter.mesh = mesh;
-        }
+        landController.meshFilter.mesh = mesh;
 
         MeshCollider meshCollider = land.AddComponent<MeshCollider>();
         meshCollider.sharedMesh = mesh;
