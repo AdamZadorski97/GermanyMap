@@ -38,23 +38,74 @@ public class GeoJSONProperties
     public double qkm { get; set; }
 }
 
+[Serializable]
+public class ZoomRange
+{
+    public float minZoom;
+    public float maxZoom;
+    public int elementIndex;
+}
+
 public class GeoJSONFileReader : MonoBehaviour
 {
+    const string PREFS_KEY_RELOADING_ENABLED = "_ReloadingEnabled";
+    
     public List<string> geoJSONFilePaths;
     public float scale = 100000;
     public float simplify = 0.001f;
     public Vector3 pivotOffset = Vector3.zero;
+    public List<ZoomRange> zoomRanges;
+    public List<GameObject> landPrefabsClones = new List<GameObject>();
     [SerializeField] private string geoJSONFilePath;
     [SerializeField] private GameObject landPrefab;
-
+    [SerializeField] private CameraController cameraController;
+   
+    private int currentElementIndex = 0;
     private GeoJSONData geoJSONData;
 
     private void Start()
     {
-        LoadGeoJSON(geoJSONFilePath);
+        float currentZoom = cameraController.currentZoom;
+        int newElementIndex = GetCurrentElementIndex(currentZoom);
+        LoadGeoJSON(geoJSONFilePaths[newElementIndex]); 
         Draw2DMeshesFromLineRenderers();
     }
 
+    void Update()
+    {
+        float currentZoom = cameraController.currentZoom;
+        int newElementIndex = GetCurrentElementIndex(currentZoom);
+        
+        if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
+        {
+            currentElementIndex = newElementIndex;
+            SwitchElement(currentElementIndex);
+        }
+    }
+
+    int GetCurrentElementIndex(float zoom)
+    {
+        for (int i = 0; i < zoomRanges.Count; i++)
+        {
+            if (zoom >= zoomRanges[i].minZoom && zoom <= zoomRanges[i].maxZoom)
+            {
+                return i;
+            }
+        }
+        
+        return 0;
+    }
+
+    void SwitchElement(int index)
+    {
+        foreach (var land in landPrefabsClones)
+        {
+            Destroy(land);
+        }
+        LoadGeoJSON(geoJSONFilePaths[index]);
+        Draw2DMeshesFromLineRenderers();
+    }
+    
     [Button]
     public void LoadGeoJSON(string currentGeoJSONPath)
     {
@@ -100,6 +151,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 if (feature.geometry.type == "Polygon")
                 {
                     GameObject land = Instantiate(landPrefab);
+                    landPrefabsClones.Add(land);
                     land.name = "Polygon";
                     List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
@@ -111,6 +163,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     foreach (var polygon in multiPolygonCoordinates)
                     {
                         GameObject land = Instantiate(landPrefab);
+                        landPrefabsClones.Add(land);
                         land.name = "MultiPolygon-Part";
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();
@@ -136,8 +189,19 @@ public class GeoJSONFileReader : MonoBehaviour
                         (float)coordinate[1] * scale,
                         0f
                     );
-                    lineRendererPositions.Add(position);
-                    innerMeshPositions.Add(position);
+
+                    if (lineRendererPositions.Contains(position))
+                    {
+                        lineRendererPositions.Add(position);
+                        innerMeshPositions.Add(position);
+                        return;
+                    }
+                    else
+                    {
+                        lineRendererPositions.Add(position);
+                        innerMeshPositions.Add(position);
+                    }
+                   
                 }
             }
         }

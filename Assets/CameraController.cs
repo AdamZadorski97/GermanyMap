@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 class CameraController : MonoBehaviour
@@ -6,6 +7,11 @@ class CameraController : MonoBehaviour
     public float zoomOutMin = 1;
     public float zoomOutMax = 8;
     public float currentZoom;
+
+    private void Awake()
+    {
+        currentZoom = Camera.main.orthographicSize;
+    }
 
     void Update()
     {
