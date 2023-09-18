@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 
 public class GeoJSONCoordinate
 {
@@ -52,7 +53,6 @@ public class GeoJSONFileReader : MonoBehaviour
     
     public List<string> geoJSONFilePaths;
     public float scale = 100000;
-    public float simplify = 0.001f;
     public Vector3 pivotOffset = Vector3.zero;
     public List<ZoomRange> zoomRanges;
     public List<GameObject> landPrefabsClones = new List<GameObject>();
@@ -63,11 +63,11 @@ public class GeoJSONFileReader : MonoBehaviour
     private int currentElementIndex = 0;
     private GeoJSONData geoJSONData;
 
-    private void Start()
+    void Start()
     {
         float currentZoom = cameraController.currentZoom;
         int newElementIndex = GetCurrentElementIndex(currentZoom);
-        LoadGeoJSON(geoJSONFilePaths[newElementIndex]); 
+        LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
         Draw2DMeshesFromLineRenderers();
     }
 
@@ -100,7 +100,7 @@ public class GeoJSONFileReader : MonoBehaviour
     {
         foreach (var land in landPrefabsClones)
         {
-            Destroy(land);
+            ObjectPooler.Instance.ReturnObjectToPool(land);
         }
         LoadGeoJSON(geoJSONFilePaths[index]);
         Draw2DMeshesFromLineRenderers();
@@ -131,7 +131,7 @@ public class GeoJSONFileReader : MonoBehaviour
     {
         if (geoJSONData != null && geoJSONData.features != null)
         {
-            ProcessGeoJSONFeatures();
+            StartCoroutine(ProcessGeoJSONFeatures());
         }
         else
         {
@@ -139,7 +139,7 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
-    private void ProcessGeoJSONFeatures()
+    private IEnumerator ProcessGeoJSONFeatures()
     {
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
@@ -150,7 +150,8 @@ public class GeoJSONFileReader : MonoBehaviour
 
                 if (feature.geometry.type == "Polygon")
                 {
-                    GameObject land = Instantiate(landPrefab);
+                    GameObject land = ObjectPooler.Instance.GetPooledObject();
+                    land.SetActive(true);
                     landPrefabsClones.Add(land);
                     land.name = "Polygon";
                     List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
@@ -172,6 +173,8 @@ public class GeoJSONFileReader : MonoBehaviour
                     }
                 }
             }
+
+            yield return null; // Pause the method and continue from here in the next frame.
         }
     }
 
@@ -291,3 +294,6 @@ public class GeoJSONFileReader : MonoBehaviour
     }
 
 }
+
+
+
