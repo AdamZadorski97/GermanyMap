@@ -9,6 +9,7 @@ public class BackgroundController : MonoBehaviour
     const string PREFS_KEY_RELOADING_ENABLED = "_ReloadingEnabled";
 
     public GameObject settingsPanel;
+    public GameObject searchPanel;
     public GameObject backgroundPanel;
     public GameObject backgroundOff;
     public GameObject backgroundOn;
@@ -106,5 +107,15 @@ public class BackgroundController : MonoBehaviour
     public void DisableSettingsPanel()
     {
         settingsPanel.SetActive(false);
+    }
+    
+    public void EnableSearchPanel()
+    {
+        searchPanel.SetActive(true);
+    }
+    
+    public void DisableSearchPanel()
+    {
+        searchPanel.SetActive(false);
     }
 }

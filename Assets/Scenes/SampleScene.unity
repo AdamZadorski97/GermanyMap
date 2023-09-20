@@ -1127,6 +1127,7 @@ GameObject:
   - component: {fileID: 877494903}
   - component: {fileID: 877494905}
   - component: {fileID: 877494906}
+  - component: {fileID: 877494907}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1211,6 +1212,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectToPool: {fileID: 8249367896411087095, guid: aa060b4154e18fa499586c04e1023b31, type: 3}
   initialPoolSize: 1000
+--- !u!114 &877494907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 877494902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e77c36a107504ca4997d21363b5504b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  csvFilePath: 2720_geodatendeutschland_3012_202309041.csv
+  geoDates: []
 --- !u!1 &1068503420
 GameObject:
   m_ObjectHideFlags: 0
@@ -2425,6 +2440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settingsPanel: {fileID: 6367710532019032163}
+  searchPanel: {fileID: 0}
   backgroundPanel: {fileID: 737910016}
   backgroundOff: {fileID: 5095275838746813543}
   backgroundOn: {fileID: 1773850557026929660}

@@ -56,13 +56,14 @@ public class GeoJSONFileReader : MonoBehaviour
     public Vector3 pivotOffset = Vector3.zero;
     public List<ZoomRange> zoomRanges;
     public List<GameObject> landPrefabsClones = new List<GameObject>();
+    public List<LandController> landPrefabsControllersClones = new List<LandController>();
     [SerializeField] private string geoJSONFilePath;
     [SerializeField] private GameObject landPrefab;
     [SerializeField] private CameraController cameraController;
     private CoroutineHandle geoJSONProcessingHandle;
     private int currentElementIndex = 0;
     private GeoJSONData geoJSONData;
-
+    public List<SerializableGeoDate> serializableGeoDate;
     void Start()
     {
         float currentZoom = cameraController.currentZoom;
@@ -141,6 +142,8 @@ public class GeoJSONFileReader : MonoBehaviour
 
     IEnumerator<float> ProcessGeoJSONFeatures()
     {
+        serializableGeoDate = GeoDataFileReader.geoDates;
+
         int featuresProcessed = 0;
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
@@ -157,6 +160,20 @@ public class GeoJSONFileReader : MonoBehaviour
                     List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
+
+                    foreach (var postCode in feature.properties.plz)
+                    {
+                        for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
+                        {
+                            foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
+                            {
+                                if (postCode == postalCode) //failing here
+                                {
+                                    UpdateRegionsGeoData(land, serializableGeoDate, i);
+                                }
+                            }
+                        }
+                    }
                 }
                 else if (feature.geometry.type == "MultiPolygon")
                 {
@@ -170,9 +187,25 @@ public class GeoJSONFileReader : MonoBehaviour
                         innerMeshPositions.Clear();
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
                         RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
+
+
+                        foreach (var postCode in feature.properties.plz)
+                        {
+                            for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
+                            {
+                                foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
+                                {
+                                    if (postCode == postalCode) //failing here
+                                    {
+                                        UpdateRegionsGeoData(land, serializableGeoDate, i);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
+
             featuresProcessed++;
             if(featuresProcessed == 20)
             {
@@ -182,7 +215,21 @@ public class GeoJSONFileReader : MonoBehaviour
             
         }
     }
-      
+
+    private void UpdateRegionsGeoData(GameObject land, List<SerializableGeoDate> aSerializableGeoDate, int number)
+    {
+        LandController landController = land.GetComponent<LandController>();
+        if (landController.plz == aSerializableGeoDate[number].bundesland_nutscode)
+        {
+            landController.plz = aSerializableGeoDate[number].bundesland_nutscode;
+            //rest of data
+        }
+        else
+        {
+            Debug.Log("postal code match failed " + landController.plz);
+        }
+    }
+    
     private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions, ref List<Vector3> innerMeshPositions)
     {
         foreach (var linearRing in coordinates)
