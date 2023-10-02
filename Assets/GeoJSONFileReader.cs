@@ -140,8 +140,21 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
+    private bool CheckParrent()
+    {
+        if(ObjectPooler.Instance.landParrent.childCount>=1)
+                return true;
+        return false;
+    }
+
     IEnumerator<float> ProcessGeoJSONFeatures()
     {
+
+        while (!CheckParrent())
+        {
+            yield return Timing.WaitForOneFrame;
+        }
+
         serializableGeoDate = GeoDataFileReader.geoDates;
 
         int featuresProcessed = 0;
@@ -156,6 +169,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.SetActive(true);
+                    land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0));
                     landPrefabsClones.Add(land);
                     List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
@@ -182,6 +196,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         GameObject land = ObjectPooler.Instance.GetPooledObject();
                         land.SetActive(true);
+                        land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0));
                         landPrefabsClones.Add(land);
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();
@@ -241,8 +256,9 @@ public class GeoJSONFileReader : MonoBehaviour
                     // Swapped latitude and longitude for Unity's XY plane.
                     Vector3 position = new Vector3(
                         (float)coordinate[0] * scale,
-                        (float)coordinate[1] * scale,
-                        0f
+                                  0f,
+                        (float)coordinate[1] * scale
+              
                     );
 
                     if (lineRendererPositions.Contains(position))

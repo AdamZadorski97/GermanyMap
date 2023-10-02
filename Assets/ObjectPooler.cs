@@ -9,7 +9,7 @@ public class ObjectPooler : MonoBehaviour
     public int initialPoolSize = 1000;     // Initial size of the pool.
 
     private List<GameObject> pooledObjects;
-
+    public Transform landParrent;
     private void Awake()
     {
         if (Instance == null)

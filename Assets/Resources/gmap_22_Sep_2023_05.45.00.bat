@@ -1,0 +1,1 @@
+download.py --max-zoom=11 --min-zoom=4 --latitude=50.708634 --longitude=9.602051 --width=2510.0 --height=1350.0
