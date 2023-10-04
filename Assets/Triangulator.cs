@@ -10,7 +10,7 @@ public class Triangulator : MonoBehaviour
     {
         foreach (Vector3 p in points)
         {
-            m_points.Add(new Vector3(p.x, p.y, p.z)); // Use the full 3D point, as we are working in 3D space.
+            m_points.Add(new Vector3(-p.x, -p.y, -p.z)); 
         }
     }
 
@@ -58,8 +58,8 @@ public class Triangulator : MonoBehaviour
                 b = V[v];
                 c = V[w];
                 indices.Add(a);
-                indices.Add(c);
                 indices.Add(b);
+                indices.Add(c);
                 m++;
                 for (s = v, t = v + 1; t < nv; s++, t++)
                     V[s] = V[t];
@@ -79,7 +79,7 @@ public class Triangulator : MonoBehaviour
         {
             Vector3 pval = m_points[p];
             Vector3 qval = m_points[q];
-            A += pval.x * qval.z - qval.x * pval.z; // Note the change here to x and z
+            A += pval.x * qval.z - qval.x * pval.z; 
         }
         return (A * 0.5f);
     }
@@ -91,7 +91,7 @@ public class Triangulator : MonoBehaviour
         Vector3 B = m_points[V[v]];
         Vector3 C = m_points[V[w]];
 
-        if (Mathf.Epsilon > (((B.x - A.x) * (C.z - A.z)) - ((B.z - A.z) * (C.x - A.x)))) // Note the change here to x and z
+        if (Mathf.Epsilon > (((B.x - A.x) * (C.z - A.z)) - ((B.z - A.z) * (C.x - A.x))))
             return false;
 
         for (p = 0; p < n; p++)

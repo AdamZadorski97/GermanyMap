@@ -70,6 +70,7 @@ public class GeoJSONFileReader : MonoBehaviour
         int newElementIndex = GetCurrentElementIndex(currentZoom);
         LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
         Draw2DMeshesFromLineRenderers();
+         ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.Rotate(0,180,180);
     }
 
     void Update()
@@ -169,8 +170,9 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.SetActive(true);
-                    land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0));
+                    land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0));
                     landPrefabsClones.Add(land);
+                    land.transform.localPosition = Vector3.zero;
                     List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
@@ -196,8 +198,9 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         GameObject land = ObjectPooler.Instance.GetPooledObject();
                         land.SetActive(true);
-                        land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0));
+                        land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0));
                         landPrefabsClones.Add(land);
+                        land.transform.localPosition = Vector3.zero;
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
