@@ -57,8 +57,8 @@ public class Triangulator : MonoBehaviour
                 a = V[u];
                 b = V[v];
                 c = V[w];
-                indices.Add(a);
                 indices.Add(b);
+                indices.Add(a);
                 indices.Add(c);
                 m++;
                 for (s = v, t = v + 1; t < nv; s++, t++)

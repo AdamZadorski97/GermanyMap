@@ -842,7 +842,7 @@ MonoBehaviour:
   useSoftwareJPEGDecoder: 0
   width: 1024
   _activeTypeSettings: 
-  _zoom: 10
+  _zoom: 6
   latitude: 51
   longitude: 10
 --- !u!4 &295267020
@@ -1480,8 +1480,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d2ec840a24201c419fc7d8eee27a4ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoomOutMin: 5
-  zoomOutMax: 230
+  OnlineMaps: {fileID: 295267019}
+  zoomOutMin: 1
+  zoomOutMax: 15
   currentZoom: 0
 --- !u!1 &616134507
 GameObject:
@@ -2271,30 +2272,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   geoJSONFilePaths:
-  - plz-1stellig.geojson
-  - plz-2stellig.geojson
-  - plz-3stellig.geojson
   - plz-5stellig.geojson
+  - plz-3stellig.geojson
+  - plz-2stellig.geojson
+  - plz-1stellig.geojson
   scale: 30
   pivotOffset: {x: 0, y: 0, z: 0}
   zoomRanges:
-  - minZoom: 180
-    maxZoom: 230
-    elementIndex: 0
-  - minZoom: 130
-    maxZoom: 180
-    elementIndex: 1
-  - minZoom: 70
-    maxZoom: 130
-    elementIndex: 2
-  - minZoom: 5
-    maxZoom: 70
+  - minZoom: 17
+    maxZoom: 11
     elementIndex: 3
+  - minZoom: 10
+    maxZoom: 9
+    elementIndex: 2
+  - minZoom: 8
+    maxZoom: 7
+    elementIndex: 1
+  - minZoom: 6
+    maxZoom: 2
+    elementIndex: 0
   landPrefabsClones: []
   landPrefabsControllersClones: []
   geoJSONFilePath: plz-5stellig5.geojson
   landPrefab: {fileID: 8249367896411087095, guid: aa060b4154e18fa499586c04e1023b31, type: 3}
   cameraController: {fileID: 519420034}
+  OnlineMaps: {fileID: 295267019}
+  Navigation: {fileID: 0}
 --- !u!4 &877494904
 Transform:
   m_ObjectHideFlags: 0

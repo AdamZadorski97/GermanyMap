@@ -6,7 +6,9 @@ using System.IO;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json.Linq;
 using System.Collections;
+using InfinityCode.OnlineMapsDemos;
 using MEC;
+
 public class GeoJSONCoordinate
 {
     public double[] coordinates { get; set; }
@@ -64,19 +66,24 @@ public class GeoJSONFileReader : MonoBehaviour
     private int currentElementIndex = 0;
     private GeoJSONData geoJSONData;
     public List<SerializableGeoDate> serializableGeoDate;
+
+    public OnlineMaps OnlineMaps;
+    public OnlineMapsBuildings.Tile Tile;
+    public Navigation Navigation;
+    
     void Start()
     {
-        float currentZoom = cameraController.currentZoom;
-        int newElementIndex = GetCurrentElementIndex(currentZoom);
+        //float currentZoom = OnlineMaps.zoom;
+        int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
         LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
         Draw2DMeshesFromLineRenderers();
-         ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.Rotate(0,180,180);
+        //ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.Rotate(0,0,180);// ok 
     }
 
     void Update()
     {
-        float currentZoom = cameraController.currentZoom;
-        int newElementIndex = GetCurrentElementIndex(currentZoom);
+        //float currentZoom = cameraController.currentZoom;
+        int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
 
         if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
         {
@@ -85,11 +92,57 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
+    public void SetupLandParentScaleAndPosition( /*int currentZoomIndex*/)
+    {
+        switch (OnlineMaps.zoom)
+        {
+            case 2:
+
+                break;
+            case 3:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+                break;
+            case 4:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+                break;
+            case 5:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+                break;
+            case 6:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+                break;
+            case 7:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+                break;
+            case 8:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+
+                break;
+            case 9:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+                break;
+            case 10:
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
+                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+                break;
+            default:
+                Debug.Log("Nieobsługiwany zoom");
+                break;
+        }
+    }
+
     int GetCurrentElementIndex(float zoom)
     {
         for (int i = 0; i < zoomRanges.Count; i++)
         {
-            if (zoom >= zoomRanges[i].minZoom && zoom <= zoomRanges[i].maxZoom)
+            if (zoom <= zoomRanges[i].minZoom && zoom >= zoomRanges[i].maxZoom)
             {
                 return i;
             }
@@ -104,8 +157,10 @@ public class GeoJSONFileReader : MonoBehaviour
         {
             ObjectPooler.Instance.ReturnObjectToPool(land);
         }
+
         LoadGeoJSON(geoJSONFilePaths[index]);
         Draw2DMeshesFromLineRenderers();
+        //SetupLandParentScaleAndPosition();
     }
 
     [Button]
@@ -143,14 +198,13 @@ public class GeoJSONFileReader : MonoBehaviour
 
     private bool CheckParrent()
     {
-        if(ObjectPooler.Instance.landParrent.childCount>=1)
-                return true;
+        if (ObjectPooler.Instance.landParrent.childCount >= 1)
+            return true;
         return false;
     }
 
     IEnumerator<float> ProcessGeoJSONFeatures()
     {
-
         while (!CheckParrent())
         {
             yield return Timing.WaitForOneFrame;
@@ -170,10 +224,12 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.SetActive(true);
-                    land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0));
+                    land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
+                        .GetChild(0));
                     landPrefabsClones.Add(land);
                     land.transform.localPosition = Vector3.zero;
-                    List<List<double[]>> polygonCoordinates = ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
+                    List<List<double[]>> polygonCoordinates =
+                        ConvertJArrayToPolygonList((JArray) feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
 
@@ -193,12 +249,14 @@ public class GeoJSONFileReader : MonoBehaviour
                 }
                 else if (feature.geometry.type == "MultiPolygon")
                 {
-                    List<List<List<double[]>>> multiPolygonCoordinates = ConvertJArrayToMultiPolygonList((JArray)feature.geometry.coordinates);
+                    List<List<List<double[]>>> multiPolygonCoordinates =
+                        ConvertJArrayToMultiPolygonList((JArray) feature.geometry.coordinates);
                     foreach (var polygon in multiPolygonCoordinates)
                     {
                         GameObject land = ObjectPooler.Instance.GetPooledObject();
                         land.SetActive(true);
-                        land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0));
+                        land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
+                            .GetChild(0));
                         landPrefabsClones.Add(land);
                         land.transform.localPosition = Vector3.zero;
                         lineRendererPositions.Clear();
@@ -225,13 +283,14 @@ public class GeoJSONFileReader : MonoBehaviour
             }
 
             featuresProcessed++;
-            if(featuresProcessed == 20)
+            if (featuresProcessed == 20)
             {
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
             }
-            
         }
+
+        /*ObjectPooler.Instance.landParrent.transform.Rotate(0,0,180);*/
     }
 
     private void UpdateRegionsGeoData(GameObject land, List<SerializableGeoDate> aSerializableGeoDate, int number)
@@ -240,6 +299,7 @@ public class GeoJSONFileReader : MonoBehaviour
         if (landController.plz == aSerializableGeoDate[number].bundesland_nutscode)
         {
             landController.plz = aSerializableGeoDate[number].bundesland_nutscode;
+            landController.serializableGeoDate = aSerializableGeoDate[number];
             //rest of data
         }
         else
@@ -247,8 +307,9 @@ public class GeoJSONFileReader : MonoBehaviour
             Debug.Log("postal code match failed " + landController.plz);
         }
     }
-    
-    private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions, ref List<Vector3> innerMeshPositions)
+
+    private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions,
+        ref List<Vector3> innerMeshPositions)
     {
         foreach (var linearRing in coordinates)
         {
@@ -258,10 +319,9 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     // Swapped latitude and longitude for Unity's XY plane.
                     Vector3 position = new Vector3(
-                        (float)coordinate[0] * scale,
-                                  0f,
-                        (float)coordinate[1] * scale
-              
+                        (float) coordinate[0] * scale,
+                        0f,
+                        (float) coordinate[1] * scale
                     );
 
                     if (lineRendererPositions.Contains(position))
@@ -275,7 +335,6 @@ public class GeoJSONFileReader : MonoBehaviour
                         lineRendererPositions.Add(position);
                         innerMeshPositions.Add(position);
                     }
-
                 }
             }
         }
@@ -293,6 +352,14 @@ public class GeoJSONFileReader : MonoBehaviour
 
         MeshCollider meshCollider = land.AddComponent<MeshCollider>();
         meshCollider.sharedMesh = mesh;
+        meshCollider.transform.position = Vector3.zero;
+        land.transform.position = Vector3.zero;
+        landController.transform.position = Vector3.zero;
+
+        //meshCollider.transform.Rotate(180, 0, 180);
+        //land.transform.Rotate(180, 0, 180);
+        //land.transform.position = OnlineMaps.position;
+        //land.transform.position = new Vector3(OnlineMaps.width, OnlineMaps.height);
     }
 
 
@@ -358,8 +425,4 @@ public class GeoJSONFileReader : MonoBehaviour
 
         return outerList;
     }
-
 }
-
-
-

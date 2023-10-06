@@ -44,6 +44,7 @@ public class ObjectPooler : MonoBehaviour
         GameObject newObj = Instantiate(objectToPool);
         newObj.SetActive(false);
         pooledObjects.Add(newObj);
+        newObj.transform.Rotate(0,180,0);
         return newObj;
     }
 

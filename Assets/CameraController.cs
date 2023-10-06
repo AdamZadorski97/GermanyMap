@@ -3,6 +3,8 @@ using UnityEngine;
 
 class CameraController : MonoBehaviour
 {
+    public OnlineMaps OnlineMaps;
+    
     Vector3 touchStart;
     public float zoomOutMin = 1;
     public float zoomOutMax = 8;
@@ -10,7 +12,7 @@ class CameraController : MonoBehaviour
 
     private void Awake()
     {
-        currentZoom = Camera.main.orthographicSize;
+        currentZoom = OnlineMaps.zoom;
     }
 
     void Update()
@@ -46,7 +48,7 @@ class CameraController : MonoBehaviour
             Camera.main.transform.position += direction;
         }
 
-        HandleZoom(Input.GetAxis("Mouse ScrollWheel") * 10);
+        //HandleZoom(Input.GetAxis("Mouse ScrollWheel") * 10);
     }
 
     void HandleZoom(float increment)

@@ -21,7 +21,9 @@ public class LandController : MonoBehaviour
     [ShowInInspector]
     public int einwohner { get; set; }
     [ShowInInspector]
-    public double qkm { get; set; }
+    public double qkm { get; set; } 
+    [ShowInInspector]
+    public  SerializableGeoDate serializableGeoDate{ get; set; }
 
     private void OnMouseEnter()
     {
