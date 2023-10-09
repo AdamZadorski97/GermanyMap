@@ -49,6 +49,13 @@ public class ZoomRange
     public int elementIndex;
 }
 
+[Serializable]
+public class MapTransformsProperties
+{
+    public Vector3 mapPositions;
+    public Vector3 mapScales;
+}
+
 public class GeoJSONFileReader : MonoBehaviour
 {
     const string PREFS_KEY_RELOADING_ENABLED = "_ReloadingEnabled";
@@ -64,12 +71,14 @@ public class GeoJSONFileReader : MonoBehaviour
     [SerializeField] private CameraController cameraController;
     private CoroutineHandle geoJSONProcessingHandle;
     private int currentElementIndex = 0;
+    private int currentZoom = 0;
     private GeoJSONData geoJSONData;
     public List<SerializableGeoDate> serializableGeoDate;
 
     public OnlineMaps OnlineMaps;
     public OnlineMapsBuildings.Tile Tile;
     public Navigation Navigation;
+    public List<MapTransformsProperties> mapTransformsProperties;
     
     void Start()
     {
@@ -82,6 +91,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
     void Update()
     {
+        SetupLandParentScaleAndPosition();
         //float currentZoom = cameraController.currentZoom;
         int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
 
@@ -92,49 +102,64 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
-    public void SetupLandParentScaleAndPosition( /*int currentZoomIndex*/)
+    
+
+    public void SetupLandParentScaleAndPosition()
     {
-        switch (OnlineMaps.zoom)
+        int newZoom = OnlineMaps.zoom;
+        if (newZoom != currentZoom)
         {
-            case 2:
+            Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
+            currentZoom = newZoom;
+            /*if (OnlineMaps.zoom >= 2 && OnlineMaps.zoom <= 14)
+            {
+                land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+            }*/
 
-                break;
-            case 3:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
-                break;
-            case 4:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
-                break;
-            case 5:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
-                break;
-            case 6:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
-                break;
-            case 7:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
-                break;
-            case 8:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
+            switch (OnlineMaps.zoom)
+            {
+                case 2:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;
+                case 3:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;
+                case 4:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;
+                case 5: 
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;
+                /*case 6:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;*/
+                /*case 7:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;
+                case 8:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
 
-                break;
-            case 9:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
-                break;
-            case 10:
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.position = Navigation.markerPrefab.transform.position;
-                ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.localScale = new Vector3(2.15f, 3, 2);
-                break;
-            default:
-                Debug.Log("Nieobsługiwany zoom");
-                break;
+                    break;
+                case 9:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;
+                case 10:
+                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+                    break;*/
+                default:
+                    Debug.Log("Nieobsługiwany zoom");
+                    break;
+            }
         }
     }
 
@@ -283,13 +308,14 @@ public class GeoJSONFileReader : MonoBehaviour
             }
 
             featuresProcessed++;
-            if (featuresProcessed == 20)
+            if (featuresProcessed == 5)
             {
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
             }
         }
 
+        SetupLandParentScaleAndPosition();
         /*ObjectPooler.Instance.landParrent.transform.Rotate(0,0,180);*/
     }
 
@@ -359,7 +385,9 @@ public class GeoJSONFileReader : MonoBehaviour
         //meshCollider.transform.Rotate(180, 0, 180);
         //land.transform.Rotate(180, 0, 180);
         //land.transform.position = OnlineMaps.position;
-        //land.transform.position = new Vector3(OnlineMaps.width, OnlineMaps.height);
+        //land.transform.position = OnlineMaps.marker3DManager.container.transform.position;
+        //Debug.Log("xyz" + OnlineMaps.markerManager.transform.position);
+        //Debug.Log("xyzzzz" + OnlineMaps.marker3DManager.container.transform.position);
     }
 
 

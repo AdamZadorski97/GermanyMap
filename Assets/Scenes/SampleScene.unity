@@ -844,7 +844,7 @@ MonoBehaviour:
   _activeTypeSettings: 
   _zoom: 6
   latitude: 51
-  longitude: 10
+  longitude: 10.175781250000004
 --- !u!4 &295267020
 Transform:
   m_ObjectHideFlags: 0
@@ -2298,6 +2298,31 @@ MonoBehaviour:
   cameraController: {fileID: 519420034}
   OnlineMaps: {fileID: 295267019}
   Navigation: {fileID: 0}
+  mapTransformsProperties:
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 0, y: 0, z: 0}
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 0, y: 0, z: 0}
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 0.25, y: 0.25, z: 0.25}
+  - mapPositions: {x: -2, y: -31.21, z: 8.2}
+    mapScales: {x: 0.97, y: 1.53, z: 3}
+  - mapPositions: {x: -3.96, y: -61.21, z: 8.2}
+    mapScales: {x: 1.87, y: 3, z: 3}
+  - mapPositions: {x: -8.25, y: -122.3, z: 8.2}
+    mapScales: {x: 3.9, y: 6, z: 5}
+  - mapPositions: {x: -16.2, y: -255.15, z: 8.2}
+    mapScales: {x: 7.7, y: 12.5, z: 5}
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 3, y: 3, z: 3}
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 3, y: 3, z: 3}
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 3, y: 3, z: 3}
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 0, y: 0, z: 0}
+  - mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 0, y: 0, z: 0}
 --- !u!4 &877494904
 Transform:
   m_ObjectHideFlags: 0
