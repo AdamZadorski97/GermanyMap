@@ -79,13 +79,13 @@ public class GeoJSONFileReader : MonoBehaviour
     public OnlineMapsBuildings.Tile Tile;
     public Navigation Navigation;
     public List<MapTransformsProperties> mapTransformsProperties;
-    
+
     void Start()
     {
-        //float currentZoom = OnlineMaps.zoom;
+        currentZoom = OnlineMaps.zoom;
         int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
-        LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
-        Draw2DMeshesFromLineRenderers();
+      LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
+       // Draw2DMeshesFromLineRenderers();
         //ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.Rotate(0,0,180);// ok 
     }
 
@@ -99,23 +99,23 @@ public class GeoJSONFileReader : MonoBehaviour
         {
             currentElementIndex = newElementIndex;
             SwitchElement(currentElementIndex);
+           
+          
         }
     }
 
-    
+
 
     public void SetupLandParentScaleAndPosition()
     {
         int newZoom = OnlineMaps.zoom;
         if (newZoom != currentZoom)
         {
+ 
+         
+
             Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
             currentZoom = newZoom;
-            /*if (OnlineMaps.zoom >= 2 && OnlineMaps.zoom <= 14)
-            {
-                land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-            }*/
 
             switch (OnlineMaps.zoom)
             {
@@ -131,15 +131,15 @@ public class GeoJSONFileReader : MonoBehaviour
                     land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
                     land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
                     break;
-                case 5: 
+                case 5:
                     land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
                     land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
                     break;
-                /*case 6:
+                case 6:
                     land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
                     land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;*/
-                /*case 7:
+                    break;
+                case 7:
                     land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
                     land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
                     break;
@@ -155,13 +155,14 @@ public class GeoJSONFileReader : MonoBehaviour
                 case 10:
                     land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
                     land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;*/
+                    break;
                 default:
                     Debug.Log("Nieobsługiwany zoom");
                     break;
             }
         }
     }
+
 
     int GetCurrentElementIndex(float zoom)
     {
@@ -178,19 +179,24 @@ public class GeoJSONFileReader : MonoBehaviour
 
     void SwitchElement(int index)
     {
+        Timing.KillCoroutines(geoJSONProcessingHandle);
         foreach (var land in landPrefabsClones)
         {
+
             ObjectPooler.Instance.ReturnObjectToPool(land);
         }
-
+        Debug.Log($"Switch Element {index}");
         LoadGeoJSON(geoJSONFilePaths[index]);
         Draw2DMeshesFromLineRenderers();
-        //SetupLandParentScaleAndPosition();
+      //  SetupLandParentScaleAndPosition();
     }
+    public bool jsonLoaded;
 
     [Button]
     public void LoadGeoJSON(string currentGeoJSONPath)
     {
+        jsonLoaded = false;
+        Debug.Log($"Load Json: {currentGeoJSONPath}");
         string filePath = Path.Combine(Application.streamingAssetsPath, currentGeoJSONPath);
         if (File.Exists(filePath))
         {
@@ -206,6 +212,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 Debug.LogError("Failed to parse GeoJSON data.");
             }
         }
+        jsonLoaded = true;
     }
 
     [Button]
@@ -227,9 +234,20 @@ public class GeoJSONFileReader : MonoBehaviour
             return true;
         return false;
     }
-
+    public bool processDone = true;
     IEnumerator<float> ProcessGeoJSONFeatures()
     {
+        do
+        {
+            yield return Timing.WaitForOneFrame;
+            Debug.Log("Process Waiting");
+        }
+        while (!processDone);
+
+     
+
+
+            processDone = false;
         while (!CheckParrent())
         {
             yield return Timing.WaitForOneFrame;
@@ -251,10 +269,13 @@ public class GeoJSONFileReader : MonoBehaviour
                     land.SetActive(true);
                     land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
                         .GetChild(0));
+                    if(!landPrefabsClones.Contains(land))
                     landPrefabsClones.Add(land);
+                    land.name = "Polygon";
                     land.transform.localPosition = Vector3.zero;
+                    land.transform.localScale = Vector3.one * 0.01666666f;
                     List<List<double[]>> polygonCoordinates =
-                        ConvertJArrayToPolygonList((JArray) feature.geometry.coordinates);
+                        ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
 
@@ -275,15 +296,18 @@ public class GeoJSONFileReader : MonoBehaviour
                 else if (feature.geometry.type == "MultiPolygon")
                 {
                     List<List<List<double[]>>> multiPolygonCoordinates =
-                        ConvertJArrayToMultiPolygonList((JArray) feature.geometry.coordinates);
+                        ConvertJArrayToMultiPolygonList((JArray)feature.geometry.coordinates);
                     foreach (var polygon in multiPolygonCoordinates)
                     {
                         GameObject land = ObjectPooler.Instance.GetPooledObject();
                         land.SetActive(true);
                         land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
                             .GetChild(0));
-                        landPrefabsClones.Add(land);
+                        land.name = "MultiPolygon";
+                        if (!landPrefabsClones.Contains(land))
+                            landPrefabsClones.Add(land);
                         land.transform.localPosition = Vector3.zero;
+                        land.transform.localScale = Vector3.one * 0.01666666f;
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
@@ -313,9 +337,8 @@ public class GeoJSONFileReader : MonoBehaviour
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
             }
+            processDone = true;
         }
-
-        SetupLandParentScaleAndPosition();
         /*ObjectPooler.Instance.landParrent.transform.Rotate(0,0,180);*/
     }
 
@@ -345,9 +368,9 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     // Swapped latitude and longitude for Unity's XY plane.
                     Vector3 position = new Vector3(
-                        (float) coordinate[0] * scale,
+                        (float)coordinate[0] * scale,
                         0f,
-                        (float) coordinate[1] * scale
+                        (float)coordinate[1] * scale
                     );
 
                     if (lineRendererPositions.Contains(position))
@@ -363,7 +386,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     }
                 }
             }
-        }
+        } 
     }
 
     private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
@@ -378,9 +401,9 @@ public class GeoJSONFileReader : MonoBehaviour
 
         MeshCollider meshCollider = land.AddComponent<MeshCollider>();
         meshCollider.sharedMesh = mesh;
-        meshCollider.transform.position = Vector3.zero;
-        land.transform.position = Vector3.zero;
-        landController.transform.position = Vector3.zero;
+        meshCollider.transform.localPosition = Vector3.zero;
+        land.transform.localPosition = Vector3.zero;
+        landController.transform.localPosition = Vector3.zero;
 
         //meshCollider.transform.Rotate(180, 0, 180);
         //land.transform.Rotate(180, 0, 180);
