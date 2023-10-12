@@ -163,7 +163,7 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
         {
             if (_visible == value) return;
             _visible = value;
-            instance.SetActive(value);
+            //instance.SetActive(value);
         }
     }
 
@@ -221,9 +221,9 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
         instance.transform.localRotation = Quaternion.Euler(0, _rotationY, 0);
 
         instance.layer = parent.gameObject.layer;
-        instance.AddComponent<OnlineMapsMarker3DInstance>().marker = this;
+        instance.AddComponent<OnlineMapsMarker3DInstance>().marker = this;//
         _visible = false;
-        instance.SetActive(false);
+        //instance.SetActive(false);
         inited = true;
 
         control = map.control as OnlineMapsControlBase3D;

@@ -1693,6 +1693,7 @@ GameObject:
   m_Component:
   - component: {fileID: 619394802}
   - component: {fileID: 619394801}
+  - component: {fileID: 619394803}
   m_Layer: 0
   m_Name: Global Light 2D
   m_TagString: Untagged
@@ -1719,14 +1720,76 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 619394800}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.43478063, y: 0.09587852, z: -0.04661816, w: 0.8942035}
+  m_LocalPosition: {x: 0, y: 1160, z: 503}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 51.86, y: 12.24, z: 0}
+--- !u!108 &619394803
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619394800}
+  m_Enabled: 1
+  serializedVersion: 10
+  m_Type: 1
+  m_Shape: 0
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
 --- !u!1 &700801494
 GameObject:
   m_ObjectHideFlags: 0
@@ -2248,8 +2311,8 @@ MonoBehaviour:
   mapTransformsProperties:
   - mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 0, y: 0, z: 0}
-  - mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 0, y: 0, z: 0}
+  - mapPositions: {x: 1.6, y: -11.47, z: 1}
+    mapScales: {x: 0.3, y: 0.45, z: 0.25}
   - mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 0.25, y: 0.25, z: 0.25}
   - mapPositions: {x: 4.1, y: -33.87, z: 8.2}
@@ -2260,15 +2323,15 @@ MonoBehaviour:
     mapScales: {x: 2.3, y: 3.5, z: 5}
   - mapPositions: {x: 23.2, y: -188.67, z: 8.2}
     mapScales: {x: 4.6, y: 7.4, z: 5}
-  - mapPositions: {x: 52.7, y: -301.4, z: 8.2}
+  - mapPositions: {x: 46.3, y: -371.4, z: 1}
+    mapScales: {x: 9.1, y: 14.6, z: 3}
+  - mapPositions: {x: 91.5, y: -739.4, z: 1}
+    mapScales: {x: 18, y: 29, z: 3}
+  - mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 3, y: 3, z: 3}
-  - mapPositions: {x: 10.4, y: -255.15, z: 8.2}
+  - mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 3, y: 3, z: 3}
-  - mapPositions: {x: -16.2, y: 12, z: 8.2}
-    mapScales: {x: 3, y: 3, z: 3}
-  - mapPositions: {x: -16.2, y: -255.15, z: 8.2}
-    mapScales: {x: 3, y: 3, z: 3}
-  - mapPositions: {x: -16.2, y: -255.15, z: 8.2}
+  - mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 3, y: 3, z: 3}
   jsonLoaded: 0
   processDone: 1

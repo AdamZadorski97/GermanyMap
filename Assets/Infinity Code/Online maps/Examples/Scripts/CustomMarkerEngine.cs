@@ -89,21 +89,21 @@ namespace InfinityCode.OnlineMapsDemos
             Vector2 screenPosition = control.GetScreenPosition(px, py);
             if (forwarder != null)
             {
-                if (!map.InMapView(px, py))
+                /*if (!map.InMapView(px, py))
                 {
-                    marker.gameObject.SetActive(false);
+                    //marker.gameObject.SetActive(false);
                     return;
-                }
+                }*/
 
                 screenPosition = forwarder.MapToForwarderSpace(screenPosition);
             }
 
-            if (screenPosition.x < 0 || screenPosition.x > Screen.width ||
+            /*if (screenPosition.x < 0 || screenPosition.x > Screen.width ||
                 screenPosition.y < 0 || screenPosition.y > Screen.height)
             {
                 marker.gameObject.SetActive(false);
                 return;
-            }
+            }*/
 
             RectTransform markerRectTransform = marker.transform;
 
