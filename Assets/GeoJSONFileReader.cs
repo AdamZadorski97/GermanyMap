@@ -59,7 +59,9 @@ public class MapTransformsProperties
 public class GeoJSONFileReader : MonoBehaviour
 {
     const string PREFS_KEY_RELOADING_ENABLED = "_ReloadingEnabled";
-
+    public bool isKreise = true;
+    public bool isRegierungsbezirke = true;
+    public bool isBundeslaender;
     public List<string> geoJSONFilePaths;
     public float scale = 100000;
     public Vector3 pivotOffset = Vector3.zero;
@@ -79,28 +81,63 @@ public class GeoJSONFileReader : MonoBehaviour
     public OnlineMapsBuildings.Tile Tile;
     public Navigation Navigation;
     public List<MapTransformsProperties> mapTransformsProperties;
-
+    public List<MapTransformsProperties> kreizmapTransformsProperties;
     void Start()
     {
         currentZoom = OnlineMaps.zoom;
         int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
-      LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
-       // Draw2DMeshesFromLineRenderers();
+        if (isKreise)
+        {
+            LoadGeoJSON(geoJSONFilePaths[4]);
+        }
+        if (isRegierungsbezirke)
+        {
+            LoadGeoJSON(geoJSONFilePaths[5]);
+        }
+        if (isBundeslaender)
+        {
+            LoadGeoJSON(geoJSONFilePaths[6]);
+        }
+        else
+        {
+            LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
+        }
+        SetupLandParentScaleAndPosition();
+
+        // Draw2DMeshesFromLineRenderers();
         //ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.Rotate(0,0,180);// ok 
     }
 
     void Update()
     {
-        SetupLandParentScaleAndPosition();
+        if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
+            SetupLandParentScaleAndPosition();
+
         //float currentZoom = cameraController.currentZoom;
         int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
 
         if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
         {
             currentElementIndex = newElementIndex;
-            SwitchElement(currentElementIndex);
-           
-          
+            if (isKreise)
+            {
+                SwitchElement(4);
+            }
+            else if (isRegierungsbezirke)
+            {
+                SwitchElement(5);
+            }
+            else if (isBundeslaender)
+            {
+                SwitchElement(6);
+            }
+            else
+            {
+                SwitchElement(currentElementIndex);
+
+            }
+
+
         }
     }
 
@@ -111,55 +148,18 @@ public class GeoJSONFileReader : MonoBehaviour
         int newZoom = OnlineMaps.zoom;
         if (newZoom != currentZoom)
         {
- 
-         
+
+
 
             Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
             currentZoom = newZoom;
 
-            switch (OnlineMaps.zoom)
-            {
-                case 2:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                case 3:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                case 4:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                case 5:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                case 6:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                case 7:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                case 8:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+            land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
+            land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
 
-                    break;
-                case 9:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                case 10:
-                    land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-                    land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
-                    break;
-                default:
-                    Debug.Log("Nieobsługiwany zoom");
-                    break;
-            }
+
+
+
         }
     }
 
@@ -188,7 +188,7 @@ public class GeoJSONFileReader : MonoBehaviour
         Debug.Log($"Switch Element {index}");
         LoadGeoJSON(geoJSONFilePaths[index]);
         Draw2DMeshesFromLineRenderers();
-      //  SetupLandParentScaleAndPosition();
+        //  SetupLandParentScaleAndPosition();
     }
     public bool jsonLoaded;
 
@@ -244,10 +244,10 @@ public class GeoJSONFileReader : MonoBehaviour
         }
         while (!processDone);
 
-     
 
 
-            processDone = false;
+
+        processDone = false;
         while (!CheckParrent())
         {
             yield return Timing.WaitForOneFrame;
@@ -269,8 +269,8 @@ public class GeoJSONFileReader : MonoBehaviour
                     land.SetActive(true);
                     land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
                         .GetChild(0));
-                    if(!landPrefabsClones.Contains(land))
-                    landPrefabsClones.Add(land);
+                    if (!landPrefabsClones.Contains(land))
+                        landPrefabsClones.Add(land);
                     land.name = "Polygon";
                     land.transform.localPosition = Vector3.zero;
                     land.transform.localScale = Vector3.one * 0.01666666f;
@@ -279,15 +279,19 @@ public class GeoJSONFileReader : MonoBehaviour
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
 
-                    foreach (var postCode in feature.properties.plz)
+
+                    if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                     {
-                        for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
+                        foreach (var postCode in feature.properties.plz)
                         {
-                            foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
+                            for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
                             {
-                                if (postCode == postalCode) //failing here
+                                foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
                                 {
-                                    UpdateRegionsGeoData(land, serializableGeoDate, i);
+                                    if (postCode == postalCode) //failing here
+                                    {
+                                        UpdateRegionsGeoData(land, serializableGeoDate, i);
+                                    }
                                 }
                             }
                         }
@@ -313,16 +317,18 @@ public class GeoJSONFileReader : MonoBehaviour
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
                         RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
 
-
-                        foreach (var postCode in feature.properties.plz)
+                        if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                         {
-                            for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
+                            foreach (var postCode in feature.properties.plz)
                             {
-                                foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
+                                for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
                                 {
-                                    if (postCode == postalCode) //failing here
+                                    foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
                                     {
-                                        UpdateRegionsGeoData(land, serializableGeoDate, i);
+                                        if (postCode == postalCode) //failing here
+                                        {
+                                            UpdateRegionsGeoData(land, serializableGeoDate, i);
+                                        }
                                     }
                                 }
                             }
@@ -386,7 +392,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     }
                 }
             }
-        } 
+        }
     }
 
     private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
