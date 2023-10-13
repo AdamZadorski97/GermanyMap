@@ -2333,12 +2333,16 @@ MonoBehaviour:
     mapScales: {x: 9.1, y: 14.6, z: 3}
   - mapPositions: {x: 91.5, y: -739.4, z: 1}
     mapScales: {x: 18, y: 29, z: 3}
-  - mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 3, y: 3, z: 3}
-  - mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 3, y: 3, z: 3}
-  - mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 3, y: 3, z: 3}
+  - mapPositions: {x: 176.7, y: -1501.3, z: 1}
+    mapScales: {x: 35, y: 58.9, z: 3}
+  - mapPositions: {x: 384, y: -2831.8, z: 1}
+    mapScales: {x: 75, y: 111, z: 3}
+  - mapPositions: {x: 700.5, y: -5202, z: 1}
+    mapScales: {x: 139, y: 203.6, z: 3}
+  - mapPositions: {x: 1467, y: -11201.6, z: 1}
+    mapScales: {x: 288.8, y: 439, z: 3}
+  - mapPositions: {x: 2949, y: -22454, z: 1}
+    mapScales: {x: 580, y: 880, z: 3}
   kreizmapTransformsProperties: []
   jsonLoaded: 0
   processDone: 1

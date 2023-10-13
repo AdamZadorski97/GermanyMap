@@ -28,7 +28,7 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
     /// Need to check the map boundaries?<br/>
     /// It allows you to make 3D markers, which are active outside the map.
     /// </summary>
-    public bool checkMapBoundaries = true;
+    public bool checkMapBoundaries = false;///////////////////
 
     /// <summary>
     /// Reference of 3D control.
