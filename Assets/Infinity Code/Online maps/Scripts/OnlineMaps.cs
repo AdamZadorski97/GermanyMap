@@ -32,7 +32,7 @@ public class OnlineMaps : MonoBehaviour, ISerializationCallbackReceiver, IOnline
     /// <summary>
     /// The minimum zoom level
     /// </summary>
-    public const int MINZOOM = 1;
+    public const int MINZOOM = 2;
 
     /// <summary>
     /// The maximum zoom level
@@ -44,7 +44,7 @@ public class OnlineMaps : MonoBehaviour, ISerializationCallbackReceiver, IOnline
 #elif ONLINEMAPS_MAXZOOM_21
     public const int MAXZOOM = 21;
 #else
-    public const int MAXZOOM = 20;
+    public const int MAXZOOM = 13;
 #endif
 
     public const float MAXZOOM_DELTA = 0.999f;

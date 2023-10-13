@@ -6,9 +6,11 @@ using System.IO;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json.Linq;
 using System.Collections;
-using InfinityCode.OnlineMapsDemos;
+using System.Linq;
 using MEC;
 using DG.Tweening;
+using UnityEngine.UI;
+using Navigation = InfinityCode.OnlineMapsDemos.Navigation;
 
 public class GeoJSONCoordinate
 {
@@ -83,6 +85,11 @@ public class GeoJSONFileReader : MonoBehaviour
     public Navigation Navigation;
     public List<MapTransformsProperties> mapTransformsProperties;
     public List<MapTransformsProperties> kreizmapTransformsProperties;
+
+    public InputField destinationInput;
+    public List<GeoJSONFeature> GeoJsonFeaturesSearchable;
+    public List<LandController> LandControllersSearch;
+    private OnlineMaps map;
     void Start()
     {
         currentZoom = OnlineMaps.zoom;
@@ -125,10 +132,6 @@ public class GeoJSONFileReader : MonoBehaviour
        
             if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                     SwitchElement(currentElementIndex);
-
-            
-
-
         }
     }
 
@@ -139,18 +142,11 @@ public class GeoJSONFileReader : MonoBehaviour
         int newZoom = OnlineMaps.zoom;
         if (newZoom != currentZoom)
         {
-
-
-
             Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
             currentZoom = newZoom;
 
             land.DOLocalMove(mapTransformsProperties[OnlineMaps.zoom].mapPositions, 0.2f);
             land.DOScale(mapTransformsProperties[OnlineMaps.zoom].mapScales, 0.2f);
-
-
-
-
         }
     }
 
@@ -249,6 +245,9 @@ public class GeoJSONFileReader : MonoBehaviour
         int featuresProcessed = 0;
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
+           // GeoJsonFeaturesSearchable.Add(feature);
+            //Debug.Log(feature.properties.plz);
+            
             if (feature.geometry != null)
             {
                 List<Vector3> lineRendererPositions = new List<Vector3>();
@@ -270,7 +269,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
 
-
+                    LandControllersSearch.Add(land.GetComponent<LandController>());
                     if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                     {
                         foreach (var postCode in feature.properties.plz)
@@ -307,7 +306,8 @@ public class GeoJSONFileReader : MonoBehaviour
                         innerMeshPositions.Clear();
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
                         RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
-
+                        
+                        LandControllersSearch.Add(land.GetComponent<LandController>());
                         if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                         {
                             foreach (var postCode in feature.properties.plz)
@@ -339,6 +339,36 @@ public class GeoJSONFileReader : MonoBehaviour
         /*ObjectPooler.Instance.landParrent.transform.Rotate(0,0,180);*/
     }
 
+
+    public LandController FindByPLZ(List<LandController> features, string plz)
+    {
+        return features.FirstOrDefault(feature => feature.plz != null && feature.plz == plz);
+    }
+
+    public void SearchPlace()
+    {
+        
+        LandController controller = FindByPLZ(LandControllersSearch, destinationInput.text);     
+        Debug.Log("xyz" + controller.name);
+
+        //feature.properties.plz
+        
+        /*OnlineMapsGPXObject.Bounds b = route.bounds;
+
+        Vector2[] bounds =
+        {
+            new Vector2((float) b.minlon, (float) b.maxlat),
+            new Vector2((float) b.maxlon, (float) b.minlat),
+        };*/
+
+        /*Vector2 center;
+        int zoom = 6;
+        Vector2 vec = new Vector2();
+        //OnlineMapsUtils.GetCenterPointAndZoom(vec, out center, out zoom);///////////
+
+        map.SetPositionAndZoom(controller.transform.position.x, controller.transform.position.y, zoom);*/
+    }
+    
     private void UpdateRegionsGeoData(GameObject land, List<SerializableGeoDate> aSerializableGeoDate, int number)
     {
         LandController landController = land.GetComponent<LandController>();
