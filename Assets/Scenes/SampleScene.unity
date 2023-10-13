@@ -2281,11 +2281,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd8c926f20634a545ac1c139bb46b48d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isKreise: 1
+  isRegierungsbezirke: 0
+  isBundeslaender: 0
   geoJSONFilePaths:
   - plz-5stellig.geojson
   - plz-3stellig.geojson
   - plz-2stellig.geojson
   - plz-1stellig.geojson
+  - kreise.geojson
+  - regierungsbezirke.geojson
+  - bundeslaender.geojson
   scale: 30
   pivotOffset: {x: 0, y: 0, z: 0}
   zoomRanges:
@@ -2333,6 +2339,7 @@ MonoBehaviour:
     mapScales: {x: 3, y: 3, z: 3}
   - mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 3, y: 3, z: 3}
+  kreizmapTransformsProperties: []
   jsonLoaded: 0
   processDone: 1
 --- !u!4 &877494904

@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections;
 using InfinityCode.OnlineMapsDemos;
 using MEC;
+using DG.Tweening;
 
 public class GeoJSONCoordinate
 {
@@ -89,14 +90,17 @@ public class GeoJSONFileReader : MonoBehaviour
         if (isKreise)
         {
             LoadGeoJSON(geoJSONFilePaths[4]);
+            SwitchElement(4);
         }
-        if (isRegierungsbezirke)
+        else if (isRegierungsbezirke)
         {
             LoadGeoJSON(geoJSONFilePaths[5]);
+            SwitchElement(5);
         }
-        if (isBundeslaender)
+        else if (isBundeslaender)
         {
             LoadGeoJSON(geoJSONFilePaths[6]);
+            SwitchElement(6);
         }
         else
         {
@@ -110,7 +114,6 @@ public class GeoJSONFileReader : MonoBehaviour
 
     void Update()
     {
-        if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
             SetupLandParentScaleAndPosition();
 
         //float currentZoom = cameraController.currentZoom;
@@ -119,23 +122,11 @@ public class GeoJSONFileReader : MonoBehaviour
         if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
         {
             currentElementIndex = newElementIndex;
-            if (isKreise)
-            {
-                SwitchElement(4);
-            }
-            else if (isRegierungsbezirke)
-            {
-                SwitchElement(5);
-            }
-            else if (isBundeslaender)
-            {
-                SwitchElement(6);
-            }
-            else
-            {
-                SwitchElement(currentElementIndex);
+       
+            if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
+                    SwitchElement(currentElementIndex);
 
-            }
+            
 
 
         }
@@ -154,8 +145,8 @@ public class GeoJSONFileReader : MonoBehaviour
             Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
             currentZoom = newZoom;
 
-            land.localPosition = mapTransformsProperties[OnlineMaps.zoom].mapPositions;
-            land.localScale = mapTransformsProperties[OnlineMaps.zoom].mapScales;
+            land.DOLocalMove(mapTransformsProperties[OnlineMaps.zoom].mapPositions, 0.2f);
+            land.DOScale(mapTransformsProperties[OnlineMaps.zoom].mapScales, 0.2f);
 
 
 
