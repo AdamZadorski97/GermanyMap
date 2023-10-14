@@ -62,9 +62,17 @@ public class MapTransformsProperties
 public class GeoJSONFileReader : MonoBehaviour
 {
     const string PREFS_KEY_RELOADING_ENABLED = "_ReloadingEnabled";
+
+
     public bool isKreise = true;
     public bool isRegierungsbezirke = true;
     public bool isBundeslaender;
+    public bool isPlz1Stelig;
+    public bool isPlz2Stelig;
+    public bool isPlz3Stelig;
+    public bool isPlz5Stelig;
+
+
     public List<string> geoJSONFilePaths;
     public float scale = 100000;
     public Vector3 pivotOffset = Vector3.zero;
@@ -96,32 +104,64 @@ public class GeoJSONFileReader : MonoBehaviour
         int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
         if (isKreise)
         {
-            LoadGeoJSON(geoJSONFilePaths[4]);
-            SwitchElement(4);
+            SetupMap(4);
         }
         else if (isRegierungsbezirke)
         {
-            LoadGeoJSON(geoJSONFilePaths[5]);
-            SwitchElement(5);
+            SetupMap(5);
         }
         else if (isBundeslaender)
         {
-            LoadGeoJSON(geoJSONFilePaths[6]);
-            SwitchElement(6);
+            SetupMap(6);
         }
         else
         {
             LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
         }
         SetupLandParentScaleAndPosition();
+    }
 
-        // Draw2DMeshesFromLineRenderers();
-        //ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform.Rotate(0,0,180);// ok 
+
+    public void SetupMap(int type)
+    {
+        if (type == 4)
+        {
+            isKreise = true;
+            isRegierungsbezirke = false;
+            isBundeslaender = false;
+            isPlz1Stelig = false;
+            isPlz2Stelig = false;
+            isPlz3Stelig = false;
+            isPlz5Stelig = false;
+        }
+        if (type == 5)
+        {
+            isKreise = false;
+            isRegierungsbezirke = true;
+            isBundeslaender = false;
+            isPlz1Stelig = false;
+            isPlz2Stelig = false;
+            isPlz3Stelig = false;
+            isPlz5Stelig = false;
+        }
+        if (type == 6)
+        {
+            isKreise = false;
+            isRegierungsbezirke = false;
+            isBundeslaender = true;
+            isPlz1Stelig = false;
+            isPlz2Stelig = false;
+            isPlz3Stelig = false;
+            isPlz5Stelig = false;
+        }
+
+        LoadGeoJSON(geoJSONFilePaths[type]);
+        SwitchElement(type);
     }
 
     void Update()
     {
-            SetupLandParentScaleAndPosition();
+        SetupLandParentScaleAndPosition();
 
         //float currentZoom = cameraController.currentZoom;
         int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
@@ -129,9 +169,9 @@ public class GeoJSONFileReader : MonoBehaviour
         if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
         {
             currentElementIndex = newElementIndex;
-       
+
             if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
-                    SwitchElement(currentElementIndex);
+                SwitchElement(currentElementIndex);
         }
     }
 
@@ -245,9 +285,9 @@ public class GeoJSONFileReader : MonoBehaviour
         int featuresProcessed = 0;
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
-           // GeoJsonFeaturesSearchable.Add(feature);
+            // GeoJsonFeaturesSearchable.Add(feature);
             //Debug.Log(feature.properties.plz);
-            
+
             if (feature.geometry != null)
             {
                 List<Vector3> lineRendererPositions = new List<Vector3>();
@@ -299,10 +339,10 @@ public class GeoJSONFileReader : MonoBehaviour
                         LandControllersSearch.Add(land.GetComponent<LandController>());
                         if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                         {
-                                land.GetComponent<LandController>().plz = feature.properties.plz;
-                            
+                            land.GetComponent<LandController>().plz = feature.properties.plz;
+                            land.GetComponent<LandController>().plz = feature.properties.plz;
                         }
-                        land.GetComponent<LandController>().SetupText();
+
                     }
                 }
             }
@@ -407,15 +447,35 @@ public class GeoJSONFileReader : MonoBehaviour
             }
         }
     }
+    public AnimationCurve animationCurveVertical;
+    public AnimationCurve animationCurveHorisontal;
+    List<Vector3>  ApplyAnimationCurvesToPositions(List<Vector3> positions, AnimationCurve curveX, AnimationCurve curveZ)
+    {
+        for (int i = 0; i < positions.Count; i++)
+        {
+            Vector3 position = positions[i];
+            // Przemnóż pozycję x i z przez wartości z krzywych
+            position.x *= curveX.Evaluate(position.x);
+            position.z *= curveZ.Evaluate(position.z);
+            // Przypisz przekształconą pozycję z powrotem do listy
+            positions[i] = position;
+        }
+        return positions;
+    }
 
     private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
     {
         LandController landController = land.GetComponent<LandController>();
-        landController.lineRenderer.positionCount = lineRendererPositions.Count;
-        landController.lineRenderer.SetPositions(lineRendererPositions.ToArray());
 
-        int[] indices = TriangulatePolygons(innerMeshPositions);
-        Mesh mesh = CreateMeshFromIndices(innerMeshPositions, indices);
+        // Przemnóż pozycje lineRendererPositions i innerMeshPositions przy użyciu krzywych
+        List<Vector3> newLineRendererPositions  = ApplyAnimationCurvesToPositions(lineRendererPositions, animationCurveVertical, animationCurveHorisontal);
+        List<Vector3> newInnerMeshPositions = ApplyAnimationCurvesToPositions(innerMeshPositions, animationCurveVertical, animationCurveHorisontal);
+
+        landController.lineRenderer.positionCount = lineRendererPositions.Count;
+        landController.lineRenderer.SetPositions(newLineRendererPositions.ToArray());
+
+        int[] indices = TriangulatePolygons(newInnerMeshPositions);
+        Mesh mesh = CreateMeshFromIndices(newInnerMeshPositions, indices);
         landController.meshFilter.mesh = mesh;
 
         MeshCollider meshCollider = land.AddComponent<MeshCollider>();
@@ -423,15 +483,7 @@ public class GeoJSONFileReader : MonoBehaviour
         meshCollider.transform.localPosition = Vector3.zero;
         land.transform.localPosition = Vector3.zero;
         landController.transform.localPosition = Vector3.zero;
-
-        //meshCollider.transform.Rotate(180, 0, 180);
-        //land.transform.Rotate(180, 0, 180);
-        //land.transform.position = OnlineMaps.position;
-        //land.transform.position = OnlineMaps.marker3DManager.container.transform.position;
-        //Debug.Log("xyz" + OnlineMaps.markerManager.transform.position);
-        //Debug.Log("xyzzzz" + OnlineMaps.marker3DManager.container.transform.position);
     }
-
 
     private Mesh CreateMeshFromIndices(List<Vector3> vertices, int[] indices)
     {
