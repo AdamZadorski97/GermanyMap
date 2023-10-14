@@ -14,6 +14,9 @@ public class LandController : MonoBehaviour
     public Material originalMaterial;
     public MeshRenderer meshRenderer;
 
+    public Vector3 center;
+
+
     [ShowInInspector]
     public string plz { get; set; }
     [ShowInInspector]
@@ -21,21 +24,71 @@ public class LandController : MonoBehaviour
     [ShowInInspector]
     public int einwohner { get; set; }
     [ShowInInspector]
-    public double qkm { get; set; } 
+    public double qkm { get; set; }
+
     [ShowInInspector]
-    public  SerializableGeoDate serializableGeoDate{ get; set; }
+    public List<Vector3> coordinates { get; set; }
+
+
+
+    [ShowInInspector]
+    public SerializableGeoDate serializableGeoDate { get; set; }
+
 
     private void OnMouseEnter()
     {
-        if (highlightMaterial != null)
-        {
-            meshRenderer.material = highlightMaterial;
-        }
+        Highlight();
     }
 
+
     private void OnMouseExit()
+    {
+        ResetLand();
+    }
+
+    public void SetupText()
+    {
+        if (lineRenderer.positionCount == 0)
+        {
+            Debug.LogError("LineRenderer has no positions.");
+            return;
+        }
+
+        Vector3[] linePositions = new Vector3[lineRenderer.positionCount];
+        lineRenderer.GetPositions(linePositions);
+
+        center = GetCenterOfPositions(linePositions);
+        textMesh.transform.localPosition = center;
+        textMesh.text = plz;
+    }
+
+    public void Highlight()
+    {
+        meshRenderer.material = highlightMaterial;
+    }
+
+    public void ResetLand()
     {
         meshRenderer.material = originalMaterial;
     }
 
+
+    Vector3 GetCenterOfPositions(Vector3[] positions)
+    {
+        if (positions.Length == 0)
+        {
+            Debug.LogError("Array of positions is empty.");
+            return Vector3.zero;
+        }
+
+        Vector3 sum = Vector3.zero;
+        foreach (Vector3 position in positions)
+        {
+            sum += position;
+        }
+
+        return sum / positions.Length;
+    }
 }
+
+

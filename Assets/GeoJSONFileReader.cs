@@ -89,7 +89,7 @@ public class GeoJSONFileReader : MonoBehaviour
     public InputField destinationInput;
     public List<GeoJSONFeature> GeoJsonFeaturesSearchable;
     public List<LandController> LandControllersSearch;
-    private OnlineMaps map;
+    public OnlineMaps map;
     void Start()
     {
         currentZoom = OnlineMaps.zoom;
@@ -268,24 +268,13 @@ public class GeoJSONFileReader : MonoBehaviour
                         ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
-
+                    land.GetComponent<LandController>().coordinates = lineRendererPositions;
                     LandControllersSearch.Add(land.GetComponent<LandController>());
                     if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                     {
-                        foreach (var postCode in feature.properties.plz)
-                        {
-                            for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
-                            {
-                                foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
-                                {
-                                    if (postCode == postalCode) //failing here
-                                    {
-                                        UpdateRegionsGeoData(land, serializableGeoDate, i);
-                                    }
-                                }
-                            }
-                        }
+                        land.GetComponent<LandController>().plz = feature.properties.plz;
                     }
+                    land.GetComponent<LandController>().SetupText();
                 }
                 else if (feature.geometry.type == "MultiPolygon")
                 {
@@ -306,24 +295,14 @@ public class GeoJSONFileReader : MonoBehaviour
                         innerMeshPositions.Clear();
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
                         RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
-                        
+                        land.GetComponent<LandController>().coordinates = lineRendererPositions;
                         LandControllersSearch.Add(land.GetComponent<LandController>());
                         if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
                         {
-                            foreach (var postCode in feature.properties.plz)
-                            {
-                                for (int i = 0; i <= serializableGeoDate[i].bundesland_nutscode.Length; i++)
-                                {
-                                    foreach (var postalCode in serializableGeoDate[i].bundesland_nutscode)
-                                    {
-                                        if (postCode == postalCode) //failing here
-                                        {
-                                            UpdateRegionsGeoData(land, serializableGeoDate, i);
-                                        }
-                                    }
-                                }
-                            }
+                                land.GetComponent<LandController>().plz = feature.properties.plz;
+                            
                         }
+                        land.GetComponent<LandController>().SetupText();
                     }
                 }
             }
@@ -340,35 +319,48 @@ public class GeoJSONFileReader : MonoBehaviour
     }
 
 
-    public LandController FindByPLZ(List<LandController> features, string plz)
+    public List<LandController> FindAllByPLZ(List<LandController> features, string plz)
     {
-        return features.FirstOrDefault(feature => feature.plz != null && feature.plz == plz);
+        return features.Where(feature => feature.plz != null && feature.plz == plz).ToList();
     }
 
     public void SearchPlace()
     {
-        
-        LandController controller = FindByPLZ(LandControllersSearch, destinationInput.text);     
-        Debug.Log("xyz" + controller.name);
+        string plzToSearch = destinationInput.text;
 
-        //feature.properties.plz
-        
-        /*OnlineMapsGPXObject.Bounds b = route.bounds;
+        List<LandController> matchingControllers = FindAllByPLZ(LandControllersSearch, plzToSearch);
 
-        Vector2[] bounds =
+        if (matchingControllers.Count > 0)
         {
-            new Vector2((float) b.minlon, (float) b.maxlat),
-            new Vector2((float) b.maxlon, (float) b.minlat),
-        };*/
-
-        /*Vector2 center;
-        int zoom = 6;
-        Vector2 vec = new Vector2();
-        //OnlineMapsUtils.GetCenterPointAndZoom(vec, out center, out zoom);///////////
-
-        map.SetPositionAndZoom(controller.transform.position.x, controller.transform.position.y, zoom);*/
+            foreach (LandController controller in matchingControllers)
+            {
+                OnlineMaps.SetPosition(controller.lineRenderer.GetPosition(0).x / scale, controller.lineRenderer.GetPosition(0).z / scale);
+                controller.Highlight();
+            }
+        }
+        else
+        {
+            Debug.Log("No matching LandControllers found for PLZ: " + plzToSearch);
+        }
     }
-    
+    //feature.properties.plz
+
+    /*OnlineMapsGPXObject.Bounds b = route.bounds;
+
+    Vector2[] bounds =
+    {
+        new Vector2((float) b.minlon, (float) b.maxlat),
+        new Vector2((float) b.maxlon, (float) b.minlat),
+    };*/
+
+    /*Vector2 center;
+    int zoom = 6;
+    Vector2 vec = new Vector2();
+    //OnlineMapsUtils.GetCenterPointAndZoom(vec, out center, out zoom);///////////
+
+    map.SetPositionAndZoom(controller.transform.position.x, controller.transform.position.y, zoom);*/
+
+
     private void UpdateRegionsGeoData(GameObject land, List<SerializableGeoDate> aSerializableGeoDate, int number)
     {
         LandController landController = land.GetComponent<LandController>();
