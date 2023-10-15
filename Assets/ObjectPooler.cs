@@ -50,9 +50,9 @@ public class ObjectPooler : MonoBehaviour
 
     public void ReturnObjectToPool(GameObject obj)
     {
-       // obj.transform.localScale = Vector3.zero;
-      //  obj.transform.localPosition = Vector3.zero;
-        Destroy(obj.GetComponent<MeshCollider>());
+        LandController landController = obj.GetComponent<LandController>();
+        landController.ResetLand();
+        Destroy(landController.meshCollider);
         obj.SetActive(false);
     }
 }

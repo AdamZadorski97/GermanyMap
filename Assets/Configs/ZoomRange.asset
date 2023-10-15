@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6445e7976171b409ae229758856044, type: 3}
+  m_Name: ZoomRange
+  m_EditorClassIdentifier: 
+  zoomRanges:
+  - minZoom: 17
+    maxZoom: 11
+    elementIndex: 3
+  - minZoom: 10
+    maxZoom: 9
+    elementIndex: 2
+  - minZoom: 8
+    maxZoom: 7
+    elementIndex: 1
+  - minZoom: 6
+    maxZoom: 2
+    elementIndex: 0

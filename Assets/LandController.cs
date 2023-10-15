@@ -64,11 +64,16 @@ public class LandController : MonoBehaviour
 
     public void Highlight()
     {
+        if (plz != "")
+        {
+            MapUserInterface.Instance.SetPlzText(plz);
+        }
         meshRenderer.material = highlightMaterial;
     }
 
     public void ResetLand()
     {
+        textMesh.text = "";
         meshRenderer.material = originalMaterial;
     }
 
