@@ -1184,7 +1184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   map: {fileID: 0}
-  duration: 0
+  duration: 0.01
 --- !u!114 &295267013
 MonoBehaviour:
   m_ObjectHideFlags: 0
