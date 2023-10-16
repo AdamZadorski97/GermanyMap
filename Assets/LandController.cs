@@ -73,7 +73,6 @@ public class LandController : MonoBehaviour
 
     public void ResetLand()
     {
-        textMesh.text = "";
         meshRenderer.material = originalMaterial;
     }
 

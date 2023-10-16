@@ -5,12 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json.Linq;
-using System.Collections;
 using System.Linq;
 using MEC;
-using DG.Tweening;
 using UnityEngine.UI;
-using Navigation = InfinityCode.OnlineMapsDemos.Navigation;
 
 public class GeoJSONCoordinate
 {
@@ -73,9 +70,7 @@ public class GeoJSONFileReader : MonoBehaviour
 {
     public static GeoJSONFileReader Instance { get; private set; }
 
-
     const string PREFS_KEY_RELOADING_ENABLED = "_ReloadingEnabled";
-
 
     public bool isKreise = true;
     public bool isRegierungsbezirke = true;
@@ -86,10 +81,6 @@ public class GeoJSONFileReader : MonoBehaviour
     public bool isPlz5Stelig = false;
 
     public bool autoPlzZoom;
-
-
-
-
 
     public List<string> geoJSONFilePaths;
     public float scale = 100000;
@@ -106,8 +97,6 @@ public class GeoJSONFileReader : MonoBehaviour
     public List<SerializableGeoDate> serializableGeoDate;
 
     public OnlineMaps OnlineMaps;
-    public OnlineMapsBuildings.Tile Tile;
-    public Navigation Navigation;
 
     public InputField destinationInput;
     public List<GeoJSONFeature> GeoJsonFeaturesSearchable;
@@ -147,10 +136,6 @@ public class GeoJSONFileReader : MonoBehaviour
         else
             LoadGeoJSON(geoJSONFilePaths[newElementIndex]);
     }
-
-
-
-
 
     public void SetupMap(MapType type)
     {
@@ -222,10 +207,13 @@ public class GeoJSONFileReader : MonoBehaviour
             Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
             currentZoom = newZoom;
 
-            land.DOLocalMove(mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapPositions, 0.2f);
-            land.DOScale(mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapScales, 0.2f);
 
-            foreach(LandController landController in LandControllersSearch)
+
+            land.gameObject.SetActive(false);
+            land.transform.localPosition = mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapPositions;
+            land.transform.localScale = mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapScales;
+
+            foreach (LandController landController in LandControllersSearch)
             {
                 landController.lineRenderer.startWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
                 landController.lineRenderer.endWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
@@ -233,9 +221,10 @@ public class GeoJSONFileReader : MonoBehaviour
             }
 
 
+            land.gameObject.SetActive(true);
         }
-    }
 
+    }
 
     int GetCurrentElementIndex(float zoom)
     {
@@ -253,11 +242,13 @@ public class GeoJSONFileReader : MonoBehaviour
     void SwitchElement(int index)
     {
         Timing.KillCoroutines(geoJSONProcessingHandle);
-        foreach (var land in landPrefabsClones)
+        foreach (GameObject land in landPrefabsClones)
         {
 
             ObjectPooler.Instance.ReturnObjectToPool(land);
+
         }
+        landPrefabsClones.Clear();
         Debug.Log($"Switch Element {index}");
         LoadGeoJSON(geoJSONFilePaths[index]);
         Draw2DMeshesFromLineRenderers();
@@ -336,59 +327,32 @@ public class GeoJSONFileReader : MonoBehaviour
                 if (feature.geometry.type == "Polygon")
                 {
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
-                    land.SetActive(true);
-                    land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
-                        .GetChild(0));
-                    if (!landPrefabsClones.Contains(land))
-                        landPrefabsClones.Add(land);
                     land.name = "Polygon";
-                    land.transform.localPosition = Vector3.zero;
-                    land.transform.localScale = Vector3.one * 0.01666666f;
-                    List<List<double[]>> polygonCoordinates =
-                        ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
+                    List<List<double[]>> polygonCoordinates = GeometryUtilities.ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
                     UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
                     RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
-                    land.GetComponent<LandController>().coordinates = lineRendererPositions;
-                    LandControllersSearch.Add(land.GetComponent<LandController>());
-                    if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
-                    {
-                        land.GetComponent<LandController>().plz = feature.properties.plz;
-                    }
-                    land.GetComponent<LandController>().SetupText();
+                    SetupLand(land, feature);
                 }
                 else if (feature.geometry.type == "MultiPolygon")
                 {
-                    List<List<List<double[]>>> multiPolygonCoordinates =
-                        ConvertJArrayToMultiPolygonList((JArray)feature.geometry.coordinates);
+                    List<List<List<double[]>>> multiPolygonCoordinates = GeometryUtilities.ConvertJArrayToMultiPolygonList((JArray)feature.geometry.coordinates);
+
                     foreach (var polygon in multiPolygonCoordinates)
                     {
                         GameObject land = ObjectPooler.Instance.GetPooledObject();
-                        land.SetActive(true);
-                        land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
-                            .GetChild(0));
+                   
                         land.name = "MultiPolygon";
-                        if (!landPrefabsClones.Contains(land))
-                            landPrefabsClones.Add(land);
-                        land.transform.localPosition = Vector3.zero;
-                        land.transform.localScale = Vector3.one * 0.01666666f;
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();
                         UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
                         RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
-                        land.GetComponent<LandController>().coordinates = lineRendererPositions;
-                        LandControllersSearch.Add(land.GetComponent<LandController>());
-                        if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
-                        {
-                            land.GetComponent<LandController>().plz = feature.properties.plz;
-                            land.GetComponent<LandController>().plz = feature.properties.plz;
-                        }
-
+                        SetupLand(land, feature);
                     }
                 }
             }
 
             featuresProcessed++;
-            if (featuresProcessed == 5)
+            if (featuresProcessed == 1)
             {
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
@@ -397,7 +361,34 @@ public class GeoJSONFileReader : MonoBehaviour
         }
         /*ObjectPooler.Instance.landParrent.transform.Rotate(0,0,180);*/
     }
+    public void SetupLand(GameObject land, GeoJSONFeature feature)
+    {
+        LandController landController = land.GetComponent<LandController>();
+        land.SetActive(true);
+        land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
+            .GetChild(0));
+        if (!landPrefabsClones.Contains(land))
+        {
+            land.transform.localPosition = Vector3.zero;
+            land.transform.localScale = Vector3.one * 0.01666666f;
+            landPrefabsClones.Add(land);
+        }
 
+        landController.lineRenderer.startWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
+        landController.lineRenderer.endWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
+        landController.textMesh.transform.localScale = Vector3.one * mapTransformProperties.zoomRanges[OnlineMaps.zoom].textSizeMultiplier;
+        LandControllersSearch.Add(landController);
+   
+        if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
+        {
+            landController.plz = feature.properties.plz;
+            landController.SetupText();
+        }
+        else
+        {
+            landController.textMesh.text = "";
+        }
+    }
 
     public List<LandController> FindAllByPLZ(List<LandController> features, string plz)
     {
@@ -415,7 +406,7 @@ public class GeoJSONFileReader : MonoBehaviour
             OnlineMaps.SetPosition(matchingControllers[0].lineRenderer.GetPosition(0).x / scale, matchingControllers[0].lineRenderer.GetPosition(0).z / scale);
             foreach (LandController controller in matchingControllers)
             {
-               
+
                 controller.Highlight();
             }
         }
@@ -471,8 +462,6 @@ public class GeoJSONFileReader : MonoBehaviour
             }
         }
     }
-    public AnimationCurve animationCurveVertical;
-    public AnimationCurve animationCurveHorisontal;
     List<Vector3> ApplyAnimationCurvesToPositions(List<Vector3> positions, AnimationCurve curveX, AnimationCurve curveZ)
     {
         for (int i = 0; i < positions.Count; i++)
@@ -492,83 +481,29 @@ public class GeoJSONFileReader : MonoBehaviour
         LandController landController = land.GetComponent<LandController>();
 
         // Przemnóż pozycje lineRendererPositions i innerMeshPositions przy użyciu krzywych
-        List<Vector3> newLineRendererPositions = ApplyAnimationCurvesToPositions(lineRendererPositions, animationCurveVertical, animationCurveHorisontal);
-        List<Vector3> newInnerMeshPositions = ApplyAnimationCurvesToPositions(innerMeshPositions, animationCurveVertical, animationCurveHorisontal);
+        List<Vector3> newLineRendererPositions = ApplyAnimationCurvesToPositions(lineRendererPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
+        List<Vector3> newInnerMeshPositions = ApplyAnimationCurvesToPositions(innerMeshPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
 
         landController.lineRenderer.positionCount = lineRendererPositions.Count;
         landController.lineRenderer.SetPositions(newLineRendererPositions.ToArray());
 
-        int[] indices = TriangulatePolygons(newInnerMeshPositions);
-        Mesh mesh = CreateMeshFromIndices(newInnerMeshPositions, indices);
+        int[] indices = GeometryUtilities.TriangulatePolygons(newInnerMeshPositions);
+        Mesh mesh = GeometryUtilities.CreateMeshFromIndices(newInnerMeshPositions, indices);
         landController.meshFilter.mesh = mesh;
 
         MeshCollider meshCollider = land.AddComponent<MeshCollider>();
+        landController.meshCollider = meshCollider;
         meshCollider.sharedMesh = mesh;
         meshCollider.transform.localPosition = Vector3.zero;
         land.transform.localPosition = Vector3.zero;
         landController.transform.localPosition = Vector3.zero;
     }
 
-    private Mesh CreateMeshFromIndices(List<Vector3> vertices, int[] indices)
-    {
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = indices;
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-        return mesh;
-    }
 
-    private int[] TriangulatePolygons(List<Vector3> vertices)
-    {
-        Vector3[] verticesArray = vertices.ToArray();
-        Triangulator tr = new Triangulator(verticesArray);
-        int[] indices = tr.Triangulate();
-        return indices;
-    }
 
-    private List<List<List<double[]>>> ConvertJArrayToMultiPolygonList(JArray jArray)
-    {
-        var outerList = new List<List<List<double[]>>>();
+  
 
-        foreach (JArray firstLevel in jArray)
-        {
-            var middleList = new List<List<double[]>>();
 
-            foreach (JArray secondLevel in firstLevel)
-            {
-                var innerList = new List<double[]>();
 
-                foreach (JArray thirdLevel in secondLevel)
-                {
-                    innerList.Add(thirdLevel.ToObject<double[]>());
-                }
-
-                middleList.Add(innerList);
-            }
-
-            outerList.Add(middleList);
-        }
-
-        return outerList;
-    }
-
-    private List<List<double[]>> ConvertJArrayToPolygonList(JArray jArray)
-    {
-        var outerList = new List<List<double[]>>();
-
-        foreach (JArray firstLevel in jArray)
-        {
-            var innerList = new List<double[]>();
-
-            foreach (JArray secondLevel in firstLevel)
-            {
-                innerList.Add(secondLevel.ToObject<double[]>());
-            }
-
-            outerList.Add(innerList);
-        }
-
-        return outerList;
-    }
+ 
 }

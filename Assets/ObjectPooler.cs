@@ -52,7 +52,12 @@ public class ObjectPooler : MonoBehaviour
     {
         LandController landController = obj.GetComponent<LandController>();
         landController.ResetLand();
-        Destroy(landController.meshCollider);
+        landController.textMesh.text = "";
+        if (landController.meshCollider != null)
+        {
+            Destroy(landController.meshCollider);
+        }
+
         obj.SetActive(false);
     }
 }
