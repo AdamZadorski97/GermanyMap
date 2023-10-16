@@ -207,9 +207,6 @@ public class GeoJSONFileReader : MonoBehaviour
             Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
             currentZoom = newZoom;
 
-
-
-            land.gameObject.SetActive(false);
             land.transform.localPosition = mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapPositions;
             land.transform.localScale = mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapScales;
 
@@ -219,12 +216,10 @@ public class GeoJSONFileReader : MonoBehaviour
                 landController.lineRenderer.endWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
                 landController.textMesh.transform.localScale = Vector3.one * mapTransformProperties.zoomRanges[OnlineMaps.zoom].textSizeMultiplier;
             }
-
-
-            land.gameObject.SetActive(true);
         }
 
     }
+ 
 
     int GetCurrentElementIndex(float zoom)
     {
@@ -319,13 +314,15 @@ public class GeoJSONFileReader : MonoBehaviour
         int featuresProcessed = 0;
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
+            List<Vector3> lineRendererPositions = new List<Vector3>();
+            List<Vector3> innerMeshPositions = new List<Vector3>();
             if (feature.geometry != null)
             {
-                List<Vector3> lineRendererPositions = new List<Vector3>();
-                List<Vector3> innerMeshPositions = new List<Vector3>();
+          
 
                 if (feature.geometry.type == "Polygon")
                 {
+                 
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.name = "Polygon";
                     List<List<double[]>> polygonCoordinates = GeometryUtilities.ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
@@ -340,7 +337,6 @@ public class GeoJSONFileReader : MonoBehaviour
                     foreach (var polygon in multiPolygonCoordinates)
                     {
                         GameObject land = ObjectPooler.Instance.GetPooledObject();
-                   
                         land.name = "MultiPolygon";
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();

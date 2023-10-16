@@ -1184,7 +1184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   map: {fileID: 0}
-  duration: 0.3
+  duration: 0
 --- !u!114 &295267013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4012,10 +4012,10 @@ MonoBehaviour:
   isKreise: 0
   isRegierungsbezirke: 0
   isBundeslaender: 0
-  isPlz1Stelig: 1
+  isPlz1Stelig: 0
   isPlz2Stelig: 0
   isPlz3Stelig: 0
-  isPlz5Stelig: 0
+  isPlz5Stelig: 1
   autoPlzZoom: 1
   geoJSONFilePaths:
   - plz-5stellig.geojson
@@ -4032,78 +4032,11 @@ MonoBehaviour:
   landPrefab: {fileID: 8249367896411087095, guid: aa060b4154e18fa499586c04e1023b31, type: 3}
   cameraController: {fileID: 519420034}
   OnlineMaps: {fileID: 295267019}
-  Navigation: {fileID: 0}
   destinationInput: {fileID: 309094248}
   LandControllersSearch: []
   map: {fileID: 0}
   jsonLoaded: 0
   processDone: 1
-  animationCurveVertical:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0.0009542731
-      outSlope: 0.0009542731
-      tangentMode: 0
-      weightedMode: 3
-      inWeight: 0
-      outWeight: 0.13596913
-    - serializedVersion: 3
-      time: 4500
-      value: 2.5
-      inSlope: -0
-      outSlope: -0
-      tangentMode: 0
-      weightedMode: 3
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 9000
-      value: 1
-      inSlope: -0.0006025074
-      outSlope: -5.264366
-      tangentMode: 1
-      weightedMode: 3
-      inWeight: 0.1922295
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  animationCurveHorisontal:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0.0009542731
-      outSlope: 0.0009542731
-      tangentMode: 0
-      weightedMode: 3
-      inWeight: 0
-      outWeight: 0.13596913
-    - serializedVersion: 3
-      time: 4500
-      value: 2.5
-      inSlope: -0
-      outSlope: -0
-      tangentMode: 0
-      weightedMode: 3
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 9000
-      value: 1
-      inSlope: -0.0006025074
-      outSlope: -5.264366
-      tangentMode: 1
-      weightedMode: 3
-      inWeight: 0.1922295
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!4 &877494904
 Transform:
   m_ObjectHideFlags: 0
