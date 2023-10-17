@@ -16,17 +16,17 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 1.0106201
-      inSlope: 0.0009542731
-      outSlope: 0.0009542731
+      time: -163.17497
+      value: 1.1477432
+      inSlope: 0.000018883193
+      outSlope: 0.000018883193
       tangentMode: 0
       weightedMode: 3
       inWeight: 0
-      outWeight: 0.13596913
+      outWeight: 0.28950232
     - serializedVersion: 3
       time: 4500
-      value: 2.5
+      value: 1.2160339
       inSlope: -0
       outSlope: -0
       tangentMode: 0
@@ -34,13 +34,13 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 9000
-      value: 1.0070801
-      inSlope: -0.0006025074
+      time: 8836.825
+      value: 1.148571
+      inSlope: -0.000022489408
       outSlope: -5.264366
       tangentMode: 1
       weightedMode: 3
-      inWeight: 0.1922295
+      inWeight: 0.29399398
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -50,13 +50,13 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1.0106201
-      inSlope: 0.0009542731
-      outSlope: 0.0009542731
+      value: -0.1
+      inSlope: 0.0005366877
+      outSlope: 0.0005366877
       tangentMode: 0
       weightedMode: 3
       inWeight: 0
-      outWeight: 0.13596913
+      outWeight: 0.325
     - serializedVersion: 3
       time: 4500
       value: 2.5
@@ -68,12 +68,12 @@ MonoBehaviour:
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 9000
-      value: 1.0070801
-      inSlope: -0.0006025074
+      value: -0.1
+      inSlope: -0.00042367072
       outSlope: -5.264366
       tangentMode: 1
       weightedMode: 3
-      inWeight: 0.1922295
+      inWeight: 0.36666667
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -91,42 +91,42 @@ MonoBehaviour:
     mapScales: {x: 0.2, y: 0.2, z: 1}
     linewidthMultiplier: 0.5
     textSizeMultiplier: 1
-  - mapPositions: {x: 2.1, y: -16.4, z: 0.3}
-    mapScales: {x: 0.35, y: 0.35, z: 1}
+  - mapPositions: {x: 2.97, y: -10.26, z: 0.3}
+    mapScales: {x: 0.5, y: 0.42, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.1
-  - mapPositions: {x: 5.2, y: -34.55, z: 0.3}
-    mapScales: {x: 0.8, y: 0.74, z: 1}
+  - mapPositions: {x: 5.72, y: -20.8, z: 0.3}
+    mapScales: {x: 0.97, y: 0.85, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 2
-  - mapPositions: {x: 10.1, y: -70, z: 0.3}
-    mapScales: {x: 1.6, y: 1.5, z: 1}
+    textSizeMultiplier: 1
+  - mapPositions: {x: 11.5, y: -41.1, z: 0.3}
+    mapScales: {x: 1.95, y: 1.68, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 1.2
-  - mapPositions: {x: 19.9, y: -139.9, z: 0.3}
-    mapScales: {x: 3.15, y: 3, z: 1}
+    textSizeMultiplier: 0.9
+  - mapPositions: {x: 22.95, y: -83.1, z: 0.3}
+    mapScales: {x: 3.9, y: 3.4, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.8
-  - mapPositions: {x: 41, y: -291.96, z: 0.3}
-    mapScales: {x: 6.5, y: 6.24, z: 1}
+    textSizeMultiplier: 0.6
+  - mapPositions: {x: 46, y: -165.8, z: 0.3}
+    mapScales: {x: 7.81, y: 6.78, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.3
-  - mapPositions: {x: 80.5, y: -595.3, z: 0.3}
-    mapScales: {x: 12.7, y: 12.7, z: 1}
+    textSizeMultiplier: 0.25
+  - mapPositions: {x: 92.1, y: -331.3, z: 0.3}
+    mapScales: {x: 15.65, y: 13.55, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.2
-  - mapPositions: {x: 164, y: -1118.8, z: 0.3}
-    mapScales: {x: 26, y: 24, z: 1}
+  - mapPositions: {x: 184.36, y: -663.3, z: 0.3}
+    mapScales: {x: 31.3, y: 27.13, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.1
-  - mapPositions: {x: 329, y: -2340, z: 0.3}
-    mapScales: {x: 52.2, y: 50, z: 1}
+    textSizeMultiplier: 0.09
+  - mapPositions: {x: 368.7, y: -1327.5, z: 0.3}
+    mapScales: {x: 62.6, y: 54.29, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.075
-  - mapPositions: {x: 686.5, y: -4576.6, z: 0.3}
-    mapScales: {x: 110, y: 98, z: 1}
+  - mapPositions: {x: 737.2, y: -2654.2, z: 0.3}
+    mapScales: {x: 125.15, y: 108.55, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.05
+    textSizeMultiplier: 0.04
   - mapPositions: {x: 1089, y: -8309, z: 0.3}
     mapScales: {x: 180, y: 180, z: 1}
     linewidthMultiplier: 1
