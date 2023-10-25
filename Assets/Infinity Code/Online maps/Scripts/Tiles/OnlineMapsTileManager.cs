@@ -385,6 +385,7 @@ public class OnlineMapsTileManager
 
         if (tile.map == null)
         {
+            if (resourceRequest.asset != null) Resources.UnloadAsset(resourceRequest.asset);
             tile.MarkError();
             yield break;
         }
@@ -393,6 +394,8 @@ public class OnlineMapsTileManager
 
         if (texture != null)
         {
+            texture.name = tile.ToString();
+            
             texture.wrapMode = TextureWrapMode.Clamp;
             if (tile.map.control.resultIsTexture)
             {

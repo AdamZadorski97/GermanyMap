@@ -167,7 +167,7 @@ public abstract class OnlineMapsElevationManagerBase : MonoBehaviour
         if (map == null) return 0;
 
         map.GetCorners(out tlx, out tly, out brx, out bry);
-        return GetBestElevationYScale(tlx, tly, brx, bry);
+        return GetBestElevationYScale(_instance, tlx, tly, brx, bry);
     }
 
     /// <summary>
@@ -180,11 +180,25 @@ public abstract class OnlineMapsElevationManagerBase : MonoBehaviour
     /// <returns>yScale for an area</returns>
     public static float GetBestElevationYScale(double tlx, double tly, double brx, double bry)
     {
-        if (_instance != null && _instance.lockYScale) return _instance.yScaleValue;
+        return GetBestElevationYScale(_instance, tlx, tly, brx, bry);
+    }
+
+    /// <summary>
+    /// Returns yScale for an area
+    /// </summary>
+    /// <param name="manager">Elevation manager</param>
+    /// <param name="tlx">Left longitude</param>
+    /// <param name="tly">Top latitude</param>
+    /// <param name="brx">Right longitude</param>
+    /// <param name="bry">Bottom latitude</param>
+    /// <returns>yScale for an area</returns>
+    public static float GetBestElevationYScale(OnlineMapsElevationManagerBase manager, double tlx, double tly, double brx, double bry)
+    {
+        if (manager != null && manager.lockYScale) return manager.yScaleValue;
 
         double dx, dy;
 
-        OnlineMaps map = _instance != null ? _instance.map : OnlineMaps.instance;
+        OnlineMaps map = manager != null ? manager.map : OnlineMaps.instance;
         if (map == null) return 0;
 
         OnlineMapsControlBaseDynamicMesh control = map.control as OnlineMapsControlBaseDynamicMesh;
@@ -211,7 +225,7 @@ public abstract class OnlineMapsElevationManagerBase : MonoBehaviour
 
         double tlx, tly, brx, bry;
         _instance.map.GetCorners(out tlx, out tly, out brx, out bry);
-        if (!yScale.HasValue) yScale = GetBestElevationYScale(tlx, tly, brx, bry);
+        if (!yScale.HasValue) yScale = GetBestElevationYScale(_instance, tlx, tly, brx, bry);
         return GetElevation(x, z, yScale.Value, tlx, tly, brx, bry);
     }
 

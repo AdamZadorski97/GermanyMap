@@ -93,7 +93,11 @@ namespace InfinityCode.OnlineMapsExamples
             yield return www.SendWebRequest();
 
             // If there was an error, then exit the method.
+#if UNITY_2020_1_OR_NEWER
+            if (www.result != UnityWebRequest.Result.Success)
+#else
             if (www.isNetworkError || www.isHttpError)
+#endif
             {
                 Debug.Log(www.error + "\n" + Encoding.UTF8.GetString(www.downloadHandler.data));
                 yield break;

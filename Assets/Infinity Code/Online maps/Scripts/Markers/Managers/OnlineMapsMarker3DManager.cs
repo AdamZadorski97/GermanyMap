@@ -22,7 +22,7 @@ public class OnlineMapsMarker3DManager : OnlineMapsMarkerManagerBase<OnlineMapsM
     /// </summary>
     public GameObject defaultPrefab;
 
-    private Transform _container;//
+    private Transform _container;
 
     public Transform container
     {
@@ -196,7 +196,7 @@ public class OnlineMapsMarker3DManager : OnlineMapsMarkerManagerBase<OnlineMapsM
         OnlineMapsControlBase3D control = map.control as OnlineMapsControlBase3D;
         if (control != null)
         {
-            if (control.marker3DManager == null) control.marker3DManager = this;//
+            if (control.marker3DManager == null) control.marker3DManager = this;
 
             foreach (OnlineMapsMarker3D item in _items)
             {

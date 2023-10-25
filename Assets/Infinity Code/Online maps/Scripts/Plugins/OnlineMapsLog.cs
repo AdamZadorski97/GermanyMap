@@ -28,7 +28,11 @@ public class OnlineMapsLog: MonoBehaviour
     [FormerlySerializedAs("showRequests")]
     public bool requestEvents = false;
 
+    public int fontSize = 14;
+    public Color fontColor = Color.white;
+
     private static List<string> messages = new List<string>();
+    private static GUIStyle style;
 
     public static OnlineMapsLog instance
     {
@@ -73,9 +77,21 @@ public class OnlineMapsLog: MonoBehaviour
     {
         if (!logOnUI) return;
 
+        if (style == null)
+        {
+            style = new GUIStyle()
+            {
+                fontSize = fontSize,
+                normal =
+                {
+                    textColor = fontColor
+                }
+            };
+        }
+
         foreach (string message in messages)
         {
-            GUILayout.Label(message);
+            GUILayout.Label(message, style);
         }
     }
 

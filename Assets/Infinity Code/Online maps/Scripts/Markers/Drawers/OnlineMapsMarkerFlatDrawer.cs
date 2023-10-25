@@ -110,7 +110,7 @@ public class OnlineMapsMarkerFlatDrawer : OnlineMapsMarker2DMeshDrawer
         double tx, ty;
         map.projection.CoordinatesToTile(tlx, tly, zoom, out tx, out ty);
 
-        float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+        float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(control.elevationManager, tlx, tly, brx, bry);
 
         float cx = -control.sizeInScene.x / map.buffer.renderState.width;
         float cy = control.sizeInScene.y / map.buffer.renderState.height;

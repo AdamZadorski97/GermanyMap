@@ -28,7 +28,7 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
     /// Need to check the map boundaries?<br/>
     /// It allows you to make 3D markers, which are active outside the map.
     /// </summary>
-    public bool checkMapBoundaries = false;///////////////////
+    public bool checkMapBoundaries = false;
 
     /// <summary>
     /// Reference of 3D control.
@@ -163,7 +163,7 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
         {
             if (_visible == value) return;
             _visible = value;
-            //instance.SetActive(value);
+            instance.SetActive(true);
         }
     }
 
@@ -221,9 +221,9 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
         instance.transform.localRotation = Quaternion.Euler(0, _rotationY, 0);
 
         instance.layer = parent.gameObject.layer;
-        instance.AddComponent<OnlineMapsMarker3DInstance>().marker = this;//
-        _visible = false;
-        //instance.SetActive(false);
+        instance.AddComponent<OnlineMapsMarker3DInstance>().marker = this;
+       // _visible = false;
+       // instance.SetActive(false);
         inited = true;
 
         control = map.control as OnlineMapsControlBase3D;
@@ -305,7 +305,7 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
         if (control.meshFilter == null) return;
         double ttlx, ttly, tbrx, tbry;
         map.GetTileCorners(out ttlx, out ttly, out tbrx, out tbry, zoom);
-        float bestYScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+        float bestYScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(control.elevationManager, tlx, tly, brx, bry);
         Update(control.meshFilter.sharedMesh.bounds, tlx, tly, brx, bry, zoom, ttlx, ttly, tbrx, tbry, bestYScale);
     }
 
@@ -329,7 +329,7 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
         if (instance == null) Init(control.marker3DManager.container);
 
         if (!range.InRange(zoom)) visible = false;
-        else if (OnCheckMapBoundaries != null) visible = OnCheckMapBoundaries();
+       // else if (OnCheckMapBoundaries != null) visible = OnCheckMapBoundaries();
         else if (checkMapBoundaries)
         {
             if (latitude > tly || latitude < bry) visible = false;
@@ -395,7 +395,7 @@ public class OnlineMapsMarker3D : OnlineMapsMarkerBase
 
         if (altitude.HasValue)
         {
-            float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+            float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(control.elevationManager, tlx, tly, brx, bry);
             y = altitude.Value;
             if (altitudeType == OnlineMapsAltitudeType.relative && tsControl != null && elevationActive) y += elevationManager.GetUnscaledElevationValue(px, pz, tlx, tly, brx, bry);
             y *= yScale;

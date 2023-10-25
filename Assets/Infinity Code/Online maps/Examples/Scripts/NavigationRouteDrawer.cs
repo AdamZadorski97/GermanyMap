@@ -17,16 +17,16 @@ namespace InfinityCode.OnlineMapsDemos
             get { return navigation.control.drawingElementManager; }
         }
 
-        private void OnEnable()
-        {
-            navigation = GetComponent<Navigation>();
-        }
-
         public void InitCoveredPoints()
         {
             coveredPoints = new List<OnlineMapsVector2d>(remainPoints.Count);
             coveredLine = new OnlineMapsDrawingLine(coveredPoints, Color.gray, 3);
             drawingElementManager.Add(coveredLine);
+        }
+
+        private void OnEnable()
+        {
+            navigation = GetComponent<Navigation>();
         }
 
         public void RemoveLines()

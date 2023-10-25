@@ -320,7 +320,7 @@ public class OnlineMapsTileSetControl : OnlineMapsControlBaseDynamicMesh
 
         double tlx, tly, brx, bry;
         map.GetCorners(out tlx, out tly, out brx, out bry);
-        float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+        float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry);
         if (elevationManager != null)
         {
             if (elevationManager.bottomMode == OnlineMapsElevationBottomMode.minValue) altitude += elevationManager.minValue * yScale;
@@ -357,10 +357,16 @@ public class OnlineMapsTileSetControl : OnlineMapsControlBaseDynamicMesh
         double tlx, tly, brx, bry;
         map.GetCorners(out tlx, out tly, out brx, out bry);
 
-        float elevationScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
         float elevation = 0;
-        if (hasElevation) elevation = elevationManager.GetElevationValue(cpx, cpy, elevationScale, tlx, tly, brx, bry);
-        Vector3 worldPos = transform.position + transform.rotation * new Vector3((float)(cpx * transform.lossyScale.x), elevation * transform.lossyScale.y, (float)(cpy * transform.lossyScale.z));
+        if (hasElevation)
+        {
+            float elevationScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry);
+            elevation = elevationManager.GetElevationValue(cpx, cpy, elevationScale, tlx, tly, brx, bry);
+        }
+
+        Transform t = transform;
+        Vector3 lossyScale = t.lossyScale;
+        Vector3 worldPos = t.position + t.rotation * new Vector3((float)(cpx * lossyScale.x), elevation * lossyScale.y, (float)(cpy * lossyScale.z));
 
         return currentCamera.WorldToScreenPoint(worldPos);
     }
@@ -409,8 +415,9 @@ public class OnlineMapsTileSetControl : OnlineMapsControlBaseDynamicMesh
     public bool GetTileByWorldPosition(Vector3 position, out double tx, out double ty)
     {
         Vector3 boundsSize = new Vector3(sizeInScene.x, 0, sizeInScene.y);
-        boundsSize.Scale(transform.lossyScale);
-        Vector3 size = new Vector3(0, 0, sizeInScene.y * transform.lossyScale.z) - Quaternion.Inverse(transform.rotation) * (position - transform.position);
+        Transform t = transform;
+        boundsSize.Scale(t.lossyScale);
+        Vector3 size = new Vector3(0, 0, boundsSize.z) - Quaternion.Inverse(t.rotation) * (position - t.position);
 
         size.x /= boundsSize.x;
         size.z /= boundsSize.z;
@@ -1158,7 +1165,7 @@ public class OnlineMapsTileSetControl : OnlineMapsControlBaseDynamicMesh
         double tlx, tly, brx, bry;
         map.buffer.GetCorners(out tlx, out tly, out brx, out bry);
 
-        float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+        float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry);
 
         int w = w1 + 2;
         int h = h1 + 2;
@@ -1198,6 +1205,7 @@ public class OnlineMapsTileSetControl : OnlineMapsControlBaseDynamicMesh
         tilesetMesh.uv = uv;
 
         tilesetMesh.RecalculateBounds();
+        //tilesetMesh.RecalculateNormals();
 
         if (hasElevation || firstUpdate)
         {

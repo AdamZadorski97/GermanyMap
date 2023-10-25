@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class LandController : MonoBehaviour
 {
+    public GeoJSONFeature geoJSONFeature;
     public LineRenderer lineRenderer;
     public TextMesh textMesh;
     public MeshFilter meshFilter;
@@ -13,7 +14,7 @@ public class LandController : MonoBehaviour
     public Material highlightMaterial; // Assign a material with the green color in the Inspector
     public Material originalMaterial;
     public MeshRenderer meshRenderer;
-
+    public List<Vector3> realCoordinates = new List<Vector3>();
     public Vector3 center;
 
 

@@ -51,7 +51,7 @@ public class OnlineMapsOSMNominatimResult
     public double longitude;
 
     /// <summary>
-    /// Ñoordinates of location (X - longitude, Y - latitude).
+    /// Ð¡oordinates of location (X - longitude, Y - latitude).
     /// </summary>
     public Vector2 location;
 

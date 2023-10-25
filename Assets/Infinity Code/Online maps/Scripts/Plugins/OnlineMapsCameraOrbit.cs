@@ -210,7 +210,7 @@ public class OnlineMapsCameraOrbit : MonoBehaviour, IOnlineMapsSavableComponent
             if (OnlineMapsElevationManagerBase.useElevation)
             {
                 map.GetCorners(out tlx, out tly, out brx, out bry);
-                yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+                yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(control.elevationManager, tlx, tly, brx, bry);
 
                 if (adjustTo == OnlineMapsCameraAdjust.maxElevationInArea) offset.y = OnlineMapsElevationManagerBase.instance.GetMaxElevation(yScale);
                 else if (adjustTo == OnlineMapsCameraAdjust.averageCenter)

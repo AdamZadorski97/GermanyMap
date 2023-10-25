@@ -127,7 +127,6 @@ public abstract class OnlineMapsMarkerManagerBaseEditor<T, U> : Editor
             serializedObject.Update();
             UpdateFilteredItems();
             countPages = Mathf.CeilToInt(displayItems.Length / (float)ITEMS_PER_PAGE);
-            Debug.Log(countPages);
             if (page > countPages) page = countPages;
         }
 

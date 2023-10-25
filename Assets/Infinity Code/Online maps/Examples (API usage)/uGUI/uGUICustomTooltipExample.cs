@@ -51,9 +51,12 @@ namespace InfinityCode.OnlineMapsExamples
             double tlx, tly, brx, bry;
             map.GetCorners(out tlx, out tly, out brx, out bry);
 
-            float elevationScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
             float elevation = 0;
-            if (control.hasElevation) elevation = control.elevationManager.GetElevationValue(cpx, cpy, elevationScale, tlx, tly, brx, bry);
+            if (control.hasElevation)
+            {
+                float elevationScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(control.elevationManager, tlx, tly, brx, bry);
+                elevation = control.elevationManager.GetElevationValue(cpx, cpy, elevationScale, tlx, tly, brx, bry);
+            }
             Vector3 worldPos = transform.position + transform.rotation * new Vector3((float)(cpx * transform.lossyScale.x), elevation * transform.lossyScale.y, (float)(cpy * transform.lossyScale.z));
 
             Camera cam = control.activeCamera != null ? control.activeCamera : Camera.main;

@@ -41,20 +41,7 @@ public class GeoJSONProperties
     public double qkm { get; set; }
 }
 
-[Serializable]
-public class ZoomRange
-{
-    public float minZoom;
-    public float maxZoom;
-    public int elementIndex;
-}
 
-[Serializable]
-public class MapTransformsProperties
-{
-    public Vector3 mapPositions;
-    public Vector3 mapScales;
-}
 public enum MapType
 {
     none,
@@ -91,9 +78,10 @@ public class GeoJSONFileReader : MonoBehaviour
     [SerializeField] private GameObject landPrefab;
     [SerializeField] private CameraController cameraController;
     private CoroutineHandle geoJSONProcessingHandle;
+    private CoroutineHandle zoomHandle;
     private int currentElementIndex = 0;
     private int currentZoom = 0;
-    private GeoJSONData geoJSONData;
+    public GeoJSONData geoJSONData;
     public List<SerializableGeoDate> serializableGeoDate;
 
     public OnlineMaps OnlineMaps;
@@ -117,6 +105,36 @@ public class GeoJSONFileReader : MonoBehaviour
         SetupMapOnStart();
         SetupLandParentScaleAndPosition();
     }
+    public void SetActiveRenderers(bool state)
+    {
+        zoomHandle = Timing.RunCoroutine(ZoomWait(state));
+    }
+
+    private IEnumerator<float> ZoomWait(bool state)
+    {
+      yield return Timing.WaitForSeconds(0.01f);
+        Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
+        land.gameObject.SetActive(state);
+
+        if (state == true)
+        {
+            SetupLandParentScaleAndPosition();
+
+            //float currentZoom = cameraController.currentZoom;
+            int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
+
+            if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
+            {
+                currentElementIndex = newElementIndex;
+
+                if (!isKreise && !isRegierungsbezirke && !isBundeslaender && autoPlzZoom)
+                    SwitchElement(currentElementIndex);
+            }
+        }
+    }
+
+
+
 
     public void SetAutoPlzZoom()
     {
@@ -181,21 +199,7 @@ public class GeoJSONFileReader : MonoBehaviour
         isPlz5Stelig = false;
     }
 
-    void Update()
-    {
-        SetupLandParentScaleAndPosition();
 
-        //float currentZoom = cameraController.currentZoom;
-        int newElementIndex = GetCurrentElementIndex(OnlineMaps.zoom);
-
-        if (newElementIndex != currentElementIndex && PlayerPrefs.GetInt(PREFS_KEY_RELOADING_ENABLED, 1) == 1)
-        {
-            currentElementIndex = newElementIndex;
-
-            if (!isKreise && !isRegierungsbezirke && !isBundeslaender && autoPlzZoom)
-                SwitchElement(currentElementIndex);
-        }
-    }
 
 
 
@@ -219,7 +223,7 @@ public class GeoJSONFileReader : MonoBehaviour
         }
 
     }
- 
+
 
     int GetCurrentElementIndex(float zoom)
     {
@@ -252,13 +256,16 @@ public class GeoJSONFileReader : MonoBehaviour
     public bool jsonLoaded;
 
     [Button]
+
     public void LoadGeoJSON(string currentGeoJSONPath)
     {
+
         jsonLoaded = false;
         Debug.Log($"Load Json: {currentGeoJSONPath}");
         string filePath = Path.Combine(Application.streamingAssetsPath, currentGeoJSONPath);
         if (File.Exists(filePath))
         {
+
             string json = File.ReadAllText(filePath);
             geoJSONData = JsonConvert.DeserializeObject<GeoJSONData>(json);
 
@@ -318,11 +325,11 @@ public class GeoJSONFileReader : MonoBehaviour
             List<Vector3> innerMeshPositions = new List<Vector3>();
             if (feature.geometry != null)
             {
-          
+
 
                 if (feature.geometry.type == "Polygon")
                 {
-                 
+
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.name = "Polygon";
                     List<List<double[]>> polygonCoordinates = GeometryUtilities.ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
@@ -348,7 +355,7 @@ public class GeoJSONFileReader : MonoBehaviour
             }
 
             featuresProcessed++;
-            if (featuresProcessed == 1)
+            if (featuresProcessed == 10)
             {
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
@@ -374,7 +381,7 @@ public class GeoJSONFileReader : MonoBehaviour
         landController.lineRenderer.endWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
         landController.textMesh.transform.localScale = Vector3.one * mapTransformProperties.zoomRanges[OnlineMaps.zoom].textSizeMultiplier;
         LandControllersSearch.Add(landController);
-   
+
         if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
         {
             landController.plz = feature.properties.plz;
@@ -399,7 +406,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
         if (matchingControllers.Count > 0)
         {
-            OnlineMaps.SetPosition(matchingControllers[0].lineRenderer.GetPosition(0).x / scale, matchingControllers[0].lineRenderer.GetPosition(0).z / scale);
+            OnlineMaps.SetPosition(matchingControllers[0].realCoordinates[0].x, matchingControllers[0].realCoordinates[0].z);
             foreach (LandController controller in matchingControllers)
             {
 
@@ -475,11 +482,11 @@ public class GeoJSONFileReader : MonoBehaviour
     private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
     {
         LandController landController = land.GetComponent<LandController>();
-
+        landController.realCoordinates = lineRendererPositions;
         // Przemnóż pozycje lineRendererPositions i innerMeshPositions przy użyciu krzywych
         List<Vector3> newLineRendererPositions = ApplyAnimationCurvesToPositions(lineRendererPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
         List<Vector3> newInnerMeshPositions = ApplyAnimationCurvesToPositions(innerMeshPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
-
+      
         landController.lineRenderer.positionCount = lineRendererPositions.Count;
         landController.lineRenderer.SetPositions(newLineRendererPositions.ToArray());
 
@@ -497,9 +504,9 @@ public class GeoJSONFileReader : MonoBehaviour
 
 
 
-  
 
 
 
- 
+
+
 }

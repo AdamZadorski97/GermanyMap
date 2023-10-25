@@ -32,6 +32,9 @@ namespace InfinityCode.OnlineMapsDemos
         /// </summary>
         public bool useLocationServicePosition;
 
+        /// <summary>
+        /// Should the compass value be smoothed.
+        /// </summary>
         public bool lerpCompassValue = true;
 
         /// <summary>

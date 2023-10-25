@@ -14,6 +14,11 @@ using Random = UnityEngine.Random;
 [AddComponentMenu("")]
 public class OnlineMapsBuildingBuiltIn : OnlineMapsBuildingBase
 {
+    /// <summary>
+    /// Allows you to intercept getting the material for the building to use the right one for your case.
+    /// </summary>
+    public static Func<OnlineMapsOSMWay, Dictionary<string, OnlineMapsOSMNode>, OnlineMapsBuildingMaterial> OnGetMaterial;
+    
     private static List<OnlineMapsOSMNode> usedNodes;
     private Material wallMaterial;
     private Material roofMaterial;
@@ -159,7 +164,11 @@ public class OnlineMapsBuildingBuiltIn : OnlineMapsBuildingBase
         float baseHeight = 15;
         float roofHeight = 0;
 
-        OnlineMapsBuildingMaterial material = GetRandomMaterial(container);
+        OnlineMapsBuildingMaterial material;
+        
+        if (OnGetMaterial != null) material = OnGetMaterial(way, nodes);
+        else material = GetRandomMaterial(container);
+        
         Vector2 scale = Vector2.one;
 
         if (defaultShader == null) defaultShader = Shader.Find("Diffuse");
@@ -245,7 +254,7 @@ public class OnlineMapsBuildingBuiltIn : OnlineMapsBuildingBase
 
         double tlx, tly, brx, bry;
         container.map.buffer.GetCorners(out tlx, out tly, out brx, out bry);
-        baseHeight *= OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+        baseHeight *= OnlineMapsElevationManagerBase.GetBestElevationYScale(container.control.elevationManager, tlx, tly, brx, bry);
 
         building.CreateHouseWall(points, baseHeight, building.wallMaterial, scale);
         building.CreateHouseRoof(points, baseHeight, roofHeight, roofType);
@@ -558,7 +567,6 @@ public class OnlineMapsBuildingBuiltIn : OnlineMapsBuildingBase
     private static OnlineMapsBuildingMaterial GetRandomMaterial(OnlineMapsBuildings container)
     {
         if (container.materials == null || container.materials.Length == 0) return null;
-
         return container.materials[Random.Range(0, container.materials.Length)];
     }
 

@@ -62,7 +62,7 @@ public class OnlineMapsMarker3DDrawer : OnlineMapsMarkerDrawerBase
         }
 
         Bounds bounds = control.meshFilter.sharedMesh.bounds;
-        float bestYScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+        float bestYScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(control.elevationManager, tlx, tly, brx, bry);
 
         for (int i = manager.Count - 1; i >= 0; i--)
         {

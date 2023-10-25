@@ -252,7 +252,7 @@ public abstract class OnlineMapsControlBaseDynamicMesh : OnlineMapsControlBase3D
         mx = -mx / map.width * sizeInScene.x;
         my = my / map.height * sizeInScene.y;
 
-        float y = hasElevation ? elevationManager.GetElevationValue(mx, my, OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry), tlx, tly, brx, bry) : 0;
+        float y = hasElevation ? elevationManager.GetElevationValue(mx, my, OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry), tlx, tly, brx, bry) : 0;
 
         Vector3 offset = transform.rotation * new Vector3((float)mx, y, (float)my);
         offset.Scale(map.transform.lossyScale);
@@ -279,11 +279,11 @@ public abstract class OnlineMapsControlBaseDynamicMesh : OnlineMapsControlBase3D
         map.GetCorners(out tlx, out tly, out brx, out bry);
 
         float y = altitude;
-        float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
-        y *= yScale;
-        
+
         if (hasElevation)
         {
+            float yScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry);
+            y *= yScale;
             if (elevationManager.bottomMode == OnlineMapsElevationBottomMode.minValue) y -= elevationManager.minValue * yScale;
             y *= elevationManager.scale;
         }

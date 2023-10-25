@@ -1242,7 +1242,7 @@ public abstract class OnlineMapsDrawingElement: IOnlineMapsInteractiveElement
         float sizeX = control.sizeInScene.x;
         float sizeY = control.sizeInScene.y;
 
-        bestElevationYScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry);
+        bestElevationYScale = OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry);
 
         if (vertices == null) vertices = new List<Vector3>(Mathf.Max(Mathf.NextPowerOfTwo(localPoints.Count * 4), 32));
         else vertices.Clear();

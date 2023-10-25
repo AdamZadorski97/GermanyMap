@@ -39,7 +39,7 @@ namespace InfinityCode.OnlineMapsDemos
 
             Vector3 position = control.GetWorldPosition(map.position);
             position.y = altitude;
-            if (elevationManager != null) position.y *= OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry) * elevationManager.scale;
+            if (elevationManager != null) position.y *= OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry) * elevationManager.scale;
 
             gameObject.transform.position = position;
             map.GetPosition(out px, out py);
@@ -103,7 +103,7 @@ namespace InfinityCode.OnlineMapsDemos
 
             Vector3 pos = transform.position;
             pos.y = altitude;
-            if (elevationManager != null) pos.y *= OnlineMapsElevationManagerBase.GetBestElevationYScale(tlx, tly, brx, bry) * elevationManager.scale;
+            if (elevationManager != null) pos.y *= OnlineMapsElevationManagerBase.GetBestElevationYScale(elevationManager, tlx, tly, brx, bry) * elevationManager.scale;
             transform.position = pos;
 
             Vector2 distance = OnlineMapsUtils.DistanceBetweenPoints(map.topLeftPosition, map.bottomRightPosition);

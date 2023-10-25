@@ -2,6 +2,7 @@
 /*   https://infinity-code.com   */
 
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace InfinityCode.OnlineMapsDemos
 {
@@ -53,9 +54,11 @@ namespace InfinityCode.OnlineMapsDemos
             control = map.control;
             control.OnValidateZoom += OnValidateZoom;
         }
-
+        public UnityEvent StartAnimEvent;
+        public UnityEvent EndAnimEvent;
         private void StartAnim(float targetZoom)
         {
+            StartAnimEvent.Invoke();
             fromZoom = map.floatZoom;
             toZoom = targetZoom;
             if (map.zoomRange != null) toZoom = map.zoomRange.CheckAndFix(toZoom);
@@ -87,6 +90,7 @@ namespace InfinityCode.OnlineMapsDemos
                 progress = 1;
                 isAnim = false;
                 map.OnMapUpdated -= UpdateZoom;
+                EndAnimEvent.Invoke();
             }
 
             float z = Mathf.Lerp(fromZoom, toZoom, progress);
