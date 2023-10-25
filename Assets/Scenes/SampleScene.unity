@@ -988,19 +988,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 270342130}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 877494903}
-        m_TargetAssemblyTypeName: GeoJSONFileReader, Assembly-CSharp
-        m_MethodName: SetupMap
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 5
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &270342130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3223,8 +3211,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 240.3487, y: -18.14627}
-  m_SizeDelta: {x: 268.63, y: 26.652802}
+  m_AnchoredPosition: {x: 146.47, y: -18.14627}
+  m_SizeDelta: {x: 80.874, y: 26.6528}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &620909934
 MonoBehaviour:
@@ -7946,19 +7934,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1746667574}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 877494903}
-        m_TargetAssemblyTypeName: GeoJSONFileReader, Assembly-CSharp
-        m_MethodName: SetupMap
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 5
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1746667574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9247,19 +9223,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2119716566}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 877494903}
-        m_TargetAssemblyTypeName: GeoJSONFileReader, Assembly-CSharp
-        m_MethodName: SetupMap
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 6
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2119716566
 MonoBehaviour:
   m_ObjectHideFlags: 0
