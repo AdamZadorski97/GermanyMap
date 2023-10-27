@@ -15,9 +15,11 @@ public class LandController : MonoBehaviour
     public Material originalMaterial;
     public MeshRenderer meshRenderer;
     public List<Vector3> realCoordinates = new List<Vector3>();
+    public List<Vector3> realCoordinatesToCentering = new List<Vector3>();
     public Vector3 center;
 
-
+    [ShowInInspector]
+    public string geometry { get; set; }
     [ShowInInspector]
     public string plz { get; set; }
     [ShowInInspector]
@@ -29,9 +31,7 @@ public class LandController : MonoBehaviour
 
     [ShowInInspector]
     public List<Vector3> coordinates { get; set; }
-
-
-
+    
     [ShowInInspector]
     public SerializableGeoDate serializableGeoDate { get; set; }
 

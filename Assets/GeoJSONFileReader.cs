@@ -323,18 +323,21 @@ public class GeoJSONFileReader : MonoBehaviour
         {
             List<Vector3> lineRendererPositions = new List<Vector3>();
             List<Vector3> innerMeshPositions = new List<Vector3>();
+            
+            List<Vector3> geographicalPositions = new List<Vector3>();
+            List<Vector3> innerGeographicalPositions = new List<Vector3>();
+            
             if (feature.geometry != null)
             {
 
 
                 if (feature.geometry.type == "Polygon")
                 {
-
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.name = "Polygon";
                     List<List<double[]>> polygonCoordinates = GeometryUtilities.ConvertJArrayToPolygonList((JArray)feature.geometry.coordinates);
-                    UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref innerMeshPositions);
-                    RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
+                    UpdatePositionLists(polygonCoordinates, ref lineRendererPositions, ref geographicalPositions, ref innerMeshPositions, ref innerGeographicalPositions );
+                    RenderLandGeometry(land, lineRendererPositions, innerMeshPositions, geographicalPositions, innerGeographicalPositions);
                     SetupLand(land, feature);
                 }
                 else if (feature.geometry.type == "MultiPolygon")
@@ -347,8 +350,8 @@ public class GeoJSONFileReader : MonoBehaviour
                         land.name = "MultiPolygon";
                         lineRendererPositions.Clear();
                         innerMeshPositions.Clear();
-                        UpdatePositionLists(polygon, ref lineRendererPositions, ref innerMeshPositions);
-                        RenderLandGeometry(land, lineRendererPositions, innerMeshPositions);
+                        UpdatePositionLists(polygon, ref lineRendererPositions, ref geographicalPositions, ref innerMeshPositions, ref innerGeographicalPositions );
+                        RenderLandGeometry(land, lineRendererPositions, innerMeshPositions, geographicalPositions, innerGeographicalPositions);
                         SetupLand(land, feature);
                     }
                 }
@@ -406,7 +409,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
         if (matchingControllers.Count > 0)
         {
-            OnlineMaps.SetPosition(matchingControllers[0].realCoordinates[0].x, matchingControllers[0].realCoordinates[0].z);
+            OnlineMaps.SetPosition(matchingControllers[0].realCoordinatesToCentering[0].x, matchingControllers[0].realCoordinatesToCentering[0].z);
             foreach (LandController controller in matchingControllers)
             {
 
@@ -434,8 +437,8 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
-    private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions,
-        ref List<Vector3> innerMeshPositions)
+    private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions,ref List<Vector3> geographicalPositions,
+        ref List<Vector3> innerMeshPositions,ref List<Vector3> innerGeographicalPositions)
     {
         foreach (var linearRing in coordinates)
         {
@@ -445,9 +448,14 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     // Swapped latitude and longitude for Unity's XY plane.
                     Vector3 position = new Vector3(
-                        (float)coordinate[0] * scale,
+                        (float) coordinate[0] * scale,
                         0f,
-                        (float)coordinate[1] * scale
+                        (float) coordinate[1] * scale
+                    );
+                    Vector3 geographicPositions = new Vector3(
+                        (float) coordinate[0],
+                        0f,
+                        (float) coordinate[1]
                     );
 
                     if (lineRendererPositions.Contains(position))
@@ -460,6 +468,18 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         lineRendererPositions.Add(position);
                         innerMeshPositions.Add(position);
+                    }
+
+                    if (geographicalPositions.Contains(geographicPositions))
+                    {
+                        geographicalPositions.Add(geographicPositions);
+                        innerGeographicalPositions.Add(geographicPositions);
+                        return;
+                    }
+                    else
+                    {
+                        geographicalPositions.Add(geographicPositions);
+                        innerGeographicalPositions.Add(geographicPositions);
                     }
                 }
             }
@@ -479,10 +499,11 @@ public class GeoJSONFileReader : MonoBehaviour
         return positions;
     }
 
-    private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions)
+    private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions,List<Vector3> geographicalPositions, List<Vector3> innerGeographicalPositions)
     {
         LandController landController = land.GetComponent<LandController>();
         landController.realCoordinates = lineRendererPositions;
+        landController.realCoordinatesToCentering = geographicalPositions;
         // Przemnóż pozycje lineRendererPositions i innerMeshPositions przy użyciu krzywych
         List<Vector3> newLineRendererPositions = ApplyAnimationCurvesToPositions(lineRendererPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
         List<Vector3> newInnerMeshPositions = ApplyAnimationCurvesToPositions(innerMeshPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
