@@ -45,10 +45,17 @@ public class MapUserInterface : MonoBehaviour
 
     private void SetupButtons()
     {
+
+        buttonSetKreise.onClick.RemoveAllListeners();
+        buttonSetBundeslaender.onClick.RemoveAllListeners();
+        buttonSetRegierungsbezirke.onClick.RemoveAllListeners();
+        buttonSetPlz.onClick.RemoveAllListeners();
+        buttonFindPlz.onClick.RemoveAllListeners();
+
         buttonSetKreise.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Kreise));
         buttonSetBundeslaender.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Bundeslaender));
         buttonSetRegierungsbezirke.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Regierungsbezirke));
-        buttonSetPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.LoadGeoJSON(GeoJSONFileReader.Instance.geoJSONFilePaths[4]));
+        buttonSetPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz1Stelig));
         buttonFindPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.SearchPlace());
     }
     private void SetupToggles()

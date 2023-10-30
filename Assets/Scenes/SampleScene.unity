@@ -487,7 +487,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 26.274475, y: -36.31729}
+  m_AnchoredPosition: {x: 26.274414, y: -36.31726}
   m_SizeDelta: {x: 41.6258, y: 14.4756}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &189402611
@@ -942,7 +942,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 16.382, y: -79.743}
+  m_AnchoredPosition: {x: 16.381958, y: -79.74298}
   m_SizeDelta: {x: 21.8407, y: 14.4756}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &270342129
@@ -3211,7 +3211,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 146.47, y: -18.14627}
+  m_AnchoredPosition: {x: 146.46997, y: -18.14624}
   m_SizeDelta: {x: 80.874, y: 26.6528}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &620909934
@@ -4226,10 +4226,10 @@ MonoBehaviour:
   isPlz5Stelig: 0
   autoPlzZoom: 1
   geoJSONFilePaths:
-  - plz-5stellig.geojson
-  - plz-3stellig.geojson
-  - plz-2stellig.geojson
   - plz-1stellig.geojson
+  - plz-2stellig.geojson
+  - plz-3stellig.geojson
+  - plz-5stellig.geojson
   - kreise.geojson
   - regierungsbezirke.geojson
   - bundeslaender.geojson

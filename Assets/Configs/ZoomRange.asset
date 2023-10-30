@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: ZoomRange
   m_EditorClassIdentifier: 
   zoomRanges:
-  - minZoom: 17
-    maxZoom: 11
-    elementIndex: 3
-  - minZoom: 10
-    maxZoom: 9
-    elementIndex: 2
-  - minZoom: 8
-    maxZoom: 7
-    elementIndex: 1
-  - minZoom: 6
-    maxZoom: 2
-    elementIndex: 0
+  - minZoom: 14
+    maxZoom: 12
+    mapType: 4
+  - minZoom: 11
+    maxZoom: 10
+    mapType: 3
+  - minZoom: 11
+    maxZoom: 8
+    mapType: 2
+  - minZoom: 7
+    maxZoom: 3
+    mapType: 1

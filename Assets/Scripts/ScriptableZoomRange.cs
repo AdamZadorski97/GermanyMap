@@ -13,5 +13,5 @@ public class ZoomRanges
 {
     public float minZoom;
     public float maxZoom;
-    public int elementIndex;
+    public MapType mapType;
 }
