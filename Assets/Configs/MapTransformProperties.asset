@@ -118,38 +118,38 @@ MonoBehaviour:
     linewidthMultiplier: 1
     textSizeMultiplier: 0.1
   - zoom: 7
-    mapPositions: {x: 458.8, y: -1664.5, z: 0.3}
-    mapScales: {x: 77.86713, y: 68.05367, z: 1}
+    mapPositions: {x: 461, y: -1669, z: 0.3}
+    mapScales: {x: 78.18, y: 73.22575, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.25
   - zoom: 8
-    mapPositions: {x: 919.01, y: -3314.1, z: 0.3}
-    mapScales: {x: 156.3356, y: 135.5007, z: 1}
+    mapPositions: {x: 922.4, y: -3348, z: 0.3}
+    mapScales: {x: 156.7, y: 146.8, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.2
   - zoom: 9
-    mapPositions: {x: 1840.6, y: -6622, z: 0.3}
-    mapScales: {x: 312.6365, y: 270.7322, z: 1}
+    mapPositions: {x: 1842, y: -6691, z: 0.3}
+    mapScales: {x: 313, y: 293.4, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.06
   - zoom: 10
-    mapPositions: {x: 3692.4, y: -13278, z: 0.3}
-    mapScales: {x: 627, y: 542.9599, z: 1}
+    mapPositions: {x: 3689.2, y: -13374.08, z: 0.3}
+    mapScales: {x: 626.9, y: 586.5, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.04
   - zoom: 11
-    mapPositions: {x: 7383, y: -26543, z: 0.3}
-    mapScales: {x: 1254, y: 1085.5, z: 1}
+    mapPositions: {x: 7365.04, y: -26759, z: 0.3}
+    mapScales: {x: 1251.61, y: 1173.5, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.02
   - zoom: 12
-    mapPositions: {x: 14742, y: -53081, z: 0.3}
-    mapScales: {x: 2502, y: 2171, z: 1}
+    mapPositions: {x: 14753, y: -53518, z: 0.3}
+    mapScales: {x: 2507.2, y: 2347, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0
   - zoom: 13
-    mapPositions: {x: 22465, y: -69846, z: 0.3}
-    mapScales: {x: 3541.581, y: 3073.051, z: 1}
+    mapPositions: {x: 29499.57, y: -107062, z: 0.3}
+    mapScales: {x: 5013.11, y: 4695.1, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0
   - zoom: 14
