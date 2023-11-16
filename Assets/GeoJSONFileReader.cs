@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Linq;
 using MEC;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class GeoJSONCoordinate
 {
@@ -39,6 +40,21 @@ public class GeoJSONProperties
     public string note { get; set; }
     public int einwohner { get; set; }
     public double qkm { get; set; }
+
+    public int ID_0 { get; set; }
+    public string ISO { get; set; }
+    public string name { get; set; }
+    public string NAME_0 { get; set; }
+    public int ID_1 { get; set; }
+    public string NAME_1 { get; set; }
+    public int ID_2 { get; set; }
+    public string NAME_2 { get; set; }
+    public int ID_3 { get; set; }
+    public string NAME_3 { get; set; }
+    public string NL_NAME_3 { get; set; }
+    public string VARNAME_3 { get; set; }
+    public string TYPE_3 { get; set; }
+    public string ENGTYPE_3 { get; set; }
 }
 
 
@@ -71,7 +87,6 @@ public class GeoJSONFileReader : MonoBehaviour
 
     public List<string> geoJSONFilePaths;
     public float scale = 100000;
-    public ScriptableZoomRange zoomRange;
     public ScriptableMapTransformProperties mapTransformProperties;
     private List<GameObject> landPrefabsClones = new List<GameObject>();
     [SerializeField] private string geoJSONFilePath;
@@ -80,7 +95,7 @@ public class GeoJSONFileReader : MonoBehaviour
     private CoroutineHandle geoJSONProcessingHandle;
     private CoroutineHandle zoomHandle;
     private int currentElementIndex = 0;
-    private int currentZoom = 0;
+    public int currentZoom = 0;
     public GeoJSONData geoJSONData;
     public List<SerializableGeoDate> serializableGeoDate;
 
@@ -90,6 +105,7 @@ public class GeoJSONFileReader : MonoBehaviour
     public List<GeoJSONFeature> GeoJsonFeaturesSearchable;
     public List<LandController> LandControllersSearch;
     public OnlineMaps map;
+    public MapType currentType;
 
     private void Awake()
     {
@@ -105,28 +121,32 @@ public class GeoJSONFileReader : MonoBehaviour
         SetupMapOnStart();
         SetupLandParentScaleAndPosition();
     }
-    public void SetActiveRenderers(bool state)
+    public void SetActiveRenderers(int value)
     {
-        zoomHandle = Timing.RunCoroutine(ZoomWait(state));
+        zoomHandle = Timing.RunCoroutine(ZoomWait(value));
     }
 
-    private IEnumerator<float> ZoomWait(bool state)
+    private IEnumerator<float> ZoomWait(int value)
     {
-        yield return Timing.WaitForSeconds(0.01f);
-        Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
-        land.gameObject.SetActive(state);
+      //  yield return Timing.WaitForOneFrame;
+        Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
 
-        if (state == true)
+        if (value == -1)
         {
-            SetupLandParentScaleAndPosition();
-
-            //float currentZoom = cameraController.currentZoom;
-            MapType mapType = GetCurrentElementIndex(OnlineMaps.zoom);
-
-            if (!isKreise && !isRegierungsbezirke && !isBundeslaender && autoPlzZoom)
-                SetupMap(mapType);
-
+            if(currentZoom > OnlineMaps.MINZOOM)
+            currentZoom--;
         }
+        if (value == 1)
+        {
+            if (currentZoom < OnlineMaps.MAXZOOM)
+                currentZoom++;
+        }
+        
+        SetupLandParentScaleAndPosition();
+        land.gameObject.SetActive(false);
+        yield return Timing.WaitForSeconds(0.1f);
+        land.gameObject.SetActive(true);
+        //float currentZoom = cameraController.currentZoom;
     }
 
 
@@ -139,6 +159,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
     private void SetupMapOnStart()
     {
+        currentZoom = OnlineMaps.zoom;
         if (isKreise)
             SetupMap(MapType.Kreise);
         else if (isRegierungsbezirke)
@@ -148,14 +169,14 @@ public class GeoJSONFileReader : MonoBehaviour
         else
             SetupMap(MapType.Plz1Stelig);
     }
-    private MapType currentType;
+
     public void SetupMap(MapType type)
     {
         if (currentType == type)
             return;
         currentType = type;
 
-            ResetMapFlags();
+        ResetMapFlags();
 
         switch (type)
         {
@@ -182,7 +203,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 break;
         }
         Debug.Log($"Setup {type} Zoom: {OnlineMaps.zoom}");
-        LoadGeoJSON(geoJSONFilePaths[(int)type-1]);
+        LoadGeoJSON(geoJSONFilePaths[(int)type - 1]);
         SwitchElement((int)type - 1);
     }
 
@@ -198,45 +219,41 @@ public class GeoJSONFileReader : MonoBehaviour
     }
 
 
-
+    public MapTransformProperties GetMapProperties(int zoom)
+    {
+        foreach(MapTransformProperties properties in mapTransformProperties.zoomRanges)
+        {
+            if(properties.zoom == zoom)
+                return properties;
+        }
+        return null;
+    }
 
 
     public void SetupLandParentScaleAndPosition()
     {
-        int newZoom = OnlineMaps.zoom;
-        if (newZoom != currentZoom)
+
+        Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
+
+        MapTransformProperties zoomProperties = GetMapProperties(currentZoom);
+
+        land.transform.DOLocalMove(zoomProperties.mapPositions, 0.1f);
+        land.transform.DOScale(zoomProperties.mapScales, 0.1f);
+
+
+
+        foreach (LandController landController in LandControllersSearch)
         {
-            Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
-            currentZoom = newZoom;
-
-            land.transform.localPosition = mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapPositions;
-            land.transform.localScale = mapTransformProperties.zoomRanges[OnlineMaps.zoom].mapScales;
-
-            foreach (LandController landController in LandControllersSearch)
-            {
-                landController.lineRenderer.startWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
-                landController.lineRenderer.endWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
-                landController.textMesh.transform.localScale = Vector3.one * mapTransformProperties.zoomRanges[OnlineMaps.zoom].textSizeMultiplier;
-            }
+            landController.lineRenderer.startWidth = zoomProperties.linewidthMultiplier;
+            landController.lineRenderer.endWidth = zoomProperties.linewidthMultiplier;
+            landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
         }
+
 
     }
 
 
-    MapType GetCurrentElementIndex(float zoom)
-    {
-        foreach(ZoomRanges zoomrange in zoomRange.zoomRanges)
-        {
-            if (zoom <= zoomrange.minZoom && zoom >= zoomrange.maxZoom)
-            {
-                Debug.Log(zoom);
-                return zoomrange.mapType;
-            }
-        
-
-        }
-        return MapType.none;
-    }
+    
 
     void SwitchElement(int index)
     {
@@ -261,7 +278,7 @@ public class GeoJSONFileReader : MonoBehaviour
     {
 
         jsonLoaded = false;
-       // Debug.Log($"Load Json: {currentGeoJSONPath}");
+        // Debug.Log($"Load Json: {currentGeoJSONPath}");
         string filePath = Path.Combine(Application.streamingAssetsPath, currentGeoJSONPath);
         if (File.Exists(filePath))
         {
@@ -271,11 +288,11 @@ public class GeoJSONFileReader : MonoBehaviour
 
             if (geoJSONData != null)
             {
-               // Debug.Log("GeoJSON data parsed successfully.");
+                // Debug.Log("GeoJSON data parsed successfully.");
             }
             else
             {
-            //    Debug.LogError("Failed to parse GeoJSON data.");
+                //    Debug.LogError("Failed to parse GeoJSON data.");
             }
         }
         jsonLoaded = true;
@@ -318,6 +335,38 @@ public class GeoJSONFileReader : MonoBehaviour
 
         serializableGeoDate = GeoDataFileReader.geoDates;
 
+
+        int minFeaturesToProcess = 0;
+        if (currentType == MapType.Plz1Stelig)
+        {
+            minFeaturesToProcess = 1;
+        }
+        if (currentType == MapType.Plz2Stelig)
+        {
+            minFeaturesToProcess = 2;
+        }
+        if (currentType == MapType.Plz3Stelig)
+        {
+            minFeaturesToProcess = 5;
+        }
+        if (currentType == MapType.Plz5Stelig)
+        {
+            minFeaturesToProcess = 5;
+        }
+        if (currentType == MapType.Kreise)
+        {
+            minFeaturesToProcess = 10;
+        }
+        if (currentType == MapType.Bundeslaender)
+        {
+            minFeaturesToProcess = 2;
+        }
+        if (currentType == MapType.Regierungsbezirke)
+        {
+            minFeaturesToProcess = 2;
+        }
+
+
         int featuresProcessed = 0;
         foreach (GeoJSONFeature feature in geoJSONData.features)
         {
@@ -358,7 +407,11 @@ public class GeoJSONFileReader : MonoBehaviour
             }
 
             featuresProcessed++;
-            if (featuresProcessed == 10)
+
+
+
+
+            if (featuresProcessed == minFeaturesToProcess)
             {
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
@@ -372,7 +425,7 @@ public class GeoJSONFileReader : MonoBehaviour
         LandController landController = land.GetComponent<LandController>();
         land.SetActive(true);
         land.transform.SetParent(ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0)
-            .GetChild(0));
+            .GetChild(0).GetChild(0));
         if (!landPrefabsClones.Contains(land))
         {
             land.transform.localPosition = Vector3.zero;
@@ -380,20 +433,35 @@ public class GeoJSONFileReader : MonoBehaviour
             landPrefabsClones.Add(land);
         }
 
-        landController.lineRenderer.startWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
-        landController.lineRenderer.endWidth = mapTransformProperties.zoomRanges[OnlineMaps.zoom].linewidthMultiplier;
-        landController.textMesh.transform.localScale = Vector3.one * mapTransformProperties.zoomRanges[OnlineMaps.zoom].textSizeMultiplier;
+        landController.lineRenderer.startWidth = mapTransformProperties.zoomRanges[currentZoom].linewidthMultiplier;
+        landController.lineRenderer.endWidth = mapTransformProperties.zoomRanges[currentZoom].linewidthMultiplier;
+        landController.textMesh.transform.localScale = Vector3.one * mapTransformProperties.zoomRanges[currentZoom].textSizeMultiplier;
         LandControllersSearch.Add(landController);
 
-        if (!isKreise && !isRegierungsbezirke && !isBundeslaender)
+
+        if (currentType == MapType.Plz1Stelig || currentType == MapType.Plz2Stelig || currentType == MapType.Plz3Stelig || currentType == MapType.Plz5Stelig)
         {
             landController.plz = feature.properties.plz;
-            landController.SetupText();
+            landController.SetupText(feature.properties.plz);
         }
-        else
+        if (currentType == MapType.Kreise)
         {
-            landController.textMesh.text = "";
+            landController.NAME_3 = feature.properties.NAME_3;
+            landController.SetupText(feature.properties.NAME_3);
         }
+        if (currentType == MapType.Bundeslaender)
+        {
+            landController.name = feature.properties.name;
+            landController.SetupText(feature.properties.name);
+        }
+        if (currentType == MapType.Regierungsbezirke)
+        {
+            landController.NAME_2 = feature.properties.NAME_2;
+            landController.SetupText(feature.properties.NAME_2);
+        }
+
+
+
     }
 
     public List<LandController> FindAllByPLZ(List<LandController> features, string plz)
@@ -401,15 +469,69 @@ public class GeoJSONFileReader : MonoBehaviour
         return features.Where(feature => feature.plz != null && feature.plz == plz).ToList();
     }
 
+    public List<LandController> FindAllByKreise(List<LandController> features, string kreise)
+    {
+        return features.Where(feature => feature.NAME_3.ToLower() != null && feature.NAME_3.ToLower() == kreise.ToLower()).ToList();
+    }
+    public List<LandController> FindAllByBundesLander(List<LandController> features, string bundesLander)
+    {
+        return features.Where(feature => feature.name.ToLower() != null && feature.name.ToLower() == bundesLander.ToLower()).ToList();
+    }
+    public List<LandController> FindAllByRegierungsbezirke(List<LandController> features, string regierungsbezirke)
+    {
+        return features.Where(feature => feature.NAME_2.ToLower() != null && feature.NAME_2.ToLower() == regierungsbezirke.ToLower()).ToList();
+    }
+
+
     public void SearchPlace()
     {
-        string plzToSearch = destinationInput.text;
+        string searchText = destinationInput.text;
+        int zoom = 0; ;
+        List<LandController> matchingControllers = new List<LandController>();
 
-        List<LandController> matchingControllers = FindAllByPLZ(LandControllersSearch, plzToSearch);
+        if (currentType == MapType.Plz1Stelig)
+        {
+            matchingControllers = FindAllByPLZ(LandControllersSearch, searchText);
+            zoom = 6;
+        }
+        if (currentType == MapType.Plz2Stelig)
+        {
+            matchingControllers = FindAllByPLZ(LandControllersSearch, searchText);
+            zoom = 7;
+        }
+        if (currentType == MapType.Plz3Stelig)
+        {
+            matchingControllers = FindAllByPLZ(LandControllersSearch, searchText);
+            zoom = 8;
+        }
+        if (currentType == MapType.Plz5Stelig)
+        {
+            matchingControllers = FindAllByPLZ(LandControllersSearch, searchText);
+            zoom = 10;
+        }
+        if (currentType == MapType.Bundeslaender)
+        {
+            matchingControllers = FindAllByBundesLander(LandControllersSearch, searchText);
+            zoom = 6;
+        }
+        if (currentType == MapType.Kreise)
+        {
+            matchingControllers = FindAllByKreise(LandControllersSearch, searchText);
+            zoom = 6;
+        }
+        if (currentType == MapType.Regierungsbezirke)
+        {
+            matchingControllers = FindAllByRegierungsbezirke(LandControllersSearch, searchText);
+            zoom = 6;
+        }
+
+
+
 
         if (matchingControllers.Count > 0)
         {
-            OnlineMaps.SetPosition(matchingControllers[0].realCoordinatesToCentering[0].x, matchingControllers[0].realCoordinatesToCentering[0].z);
+            OnlineMaps.SetPositionAndZoom(matchingControllers[0].realCoordinatesToCentering[0].x, matchingControllers[0].realCoordinatesToCentering[0].z, zoom);
+            SetupLandParentScaleAndPosition();
             foreach (LandController controller in matchingControllers)
             {
 
@@ -418,7 +540,7 @@ public class GeoJSONFileReader : MonoBehaviour
         }
         else
         {
-            Debug.Log("No matching LandControllers found for PLZ: " + plzToSearch);
+            Debug.Log("No matching LandControllers found for PLZ: " + searchText);
         }
     }
 
@@ -522,12 +644,4 @@ public class GeoJSONFileReader : MonoBehaviour
         land.transform.localPosition = Vector3.zero;
         landController.transform.localPosition = Vector3.zero;
     }
-
-
-
-
-
-
-
-
 }

@@ -56,10 +56,20 @@ namespace InfinityCode.OnlineMapsDemos
         }
         public UnityEvent StartAnimEvent;
         public UnityEvent EndAnimEvent;
+
+        public UnityEvent UpdateZoomPlusEvent;
+        public UnityEvent UpdateZoomMinusEvent;
         private void StartAnim(float targetZoom)
         {
             StartAnimEvent.Invoke();
             fromZoom = map.floatZoom;
+
+            if (targetZoom < fromZoom)
+                UpdateZoomMinusEvent.Invoke();
+            if (targetZoom > fromZoom)
+                UpdateZoomPlusEvent.Invoke();
+
+
             toZoom = targetZoom;
             if (map.zoomRange != null) toZoom = map.zoomRange.CheckAndFix(toZoom);
             progress = 0;
@@ -72,6 +82,10 @@ namespace InfinityCode.OnlineMapsDemos
             map.OnMapUpdated += UpdateZoom;
 
             map.Redraw();
+
+
+
+          
         }
 
         private void UpdateZoom()

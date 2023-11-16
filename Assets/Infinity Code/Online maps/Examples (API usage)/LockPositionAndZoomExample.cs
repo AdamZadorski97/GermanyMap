@@ -14,6 +14,9 @@ namespace InfinityCode.OnlineMapsExamples
         /// <summary>
         /// Reference to the map. If not specified, the current instance will be used.
         /// </summary>
+        /// 
+        public int maxZoom;
+        public int minZoom;
         public OnlineMaps map;
         
         private void Start()
@@ -22,14 +25,14 @@ namespace InfinityCode.OnlineMapsExamples
             if (map == null) map = OnlineMaps.instance;
             
             // Lock map zoom range
-            map.zoomRange = new OnlineMapsRange(10, 15);
-
+           // map.zoomRange = new OnlineMapsRange(minZoom, maxZoom);
+           // map.zoom = minZoom;
             // Lock map coordinates range
-            map.positionRange = new OnlineMapsPositionRange(33, -119, 34, -118);
+            map.positionRange = new OnlineMapsPositionRange(47, 5, 55, 15);
 
             // Initializes the position and zoom
-            map.zoom = 10;
-            map.position = map.positionRange.center;
+           // map.zoom = 10;
+           // map.position = map.positionRange.center;
         }
     }
 }

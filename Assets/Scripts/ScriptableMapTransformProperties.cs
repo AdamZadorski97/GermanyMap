@@ -14,6 +14,7 @@ public class ScriptableMapTransformProperties : ScriptableObject
 [Serializable]
 public class MapTransformProperties
 {
+    public int zoom;
     public Vector3 mapPositions;
     public Vector3 mapScales;
     public float linewidthMultiplier;

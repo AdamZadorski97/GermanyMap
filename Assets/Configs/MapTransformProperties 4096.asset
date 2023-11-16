@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afbce32394807674f8da150be8a481bc, type: 3}
+  m_Name: MapTransformProperties 4096
+  m_EditorClassIdentifier: 
+  animationCurveVertical:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -163.17497
+      value: 1.1477432
+      inSlope: 0.000018883193
+      outSlope: 0.000018883193
+      tangentMode: 0
+      weightedMode: 3
+      inWeight: 0
+      outWeight: 0.28950232
+    - serializedVersion: 3
+      time: 4500
+      value: 1.2160339
+      inSlope: -0
+      outSlope: -0
+      tangentMode: 0
+      weightedMode: 3
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 8836.825
+      value: 1.148571
+      inSlope: -0.000022489408
+      outSlope: -5.264366
+      tangentMode: 1
+      weightedMode: 3
+      inWeight: 0.29399398
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  animationCurveHorisontal:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: -0.1
+      inSlope: 0.0005366877
+      outSlope: 0.0005366877
+      tangentMode: 0
+      weightedMode: 3
+      inWeight: 0
+      outWeight: 0.325
+    - serializedVersion: 3
+      time: 4500
+      value: 2.5
+      inSlope: -0
+      outSlope: -0
+      tangentMode: 0
+      weightedMode: 3
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 9000
+      value: -0.1
+      inSlope: -0.00042367072
+      outSlope: -5.264366
+      tangentMode: 1
+      weightedMode: 3
+      inWeight: 0.36666667
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  zoomRanges:
+  - zoom: 3
+    mapPositions: {x: 2.97, y: -10.26, z: 0.3}
+    mapScales: {x: 0.5, y: 0.42, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.1
+  - zoom: 4
+    mapPositions: {x: 5.72, y: -20.8, z: 0.3}
+    mapScales: {x: 0.97, y: 0.85, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.1
+  - zoom: 5
+    mapPositions: {x: 11.5, y: -41.1, z: 0.3}
+    mapScales: {x: 1.95, y: 1.68, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.1
+  - zoom: 6
+    mapPositions: {x: 22.95, y: -83.1, z: 0.3}
+    mapScales: {x: 3.9, y: 3.4, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.1
+  - zoom: 7
+    mapPositions: {x: 46, y: -165.8, z: 0.3}
+    mapScales: {x: 7.81, y: 6.78, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.25
+  - zoom: 8
+    mapPositions: {x: 92.1, y: -331.3, z: 0.3}
+    mapScales: {x: 15.65, y: 13.55, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.2
+  - zoom: 9
+    mapPositions: {x: 184.36, y: -663.3, z: 0.3}
+    mapScales: {x: 31.3, y: 27.13, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.06
+  - zoom: 10
+    mapPositions: {x: 368.7, y: -1327.5, z: 0.3}
+    mapScales: {x: 62.6, y: 54.29, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.04
+  - zoom: 11
+    mapPositions: {x: 737.2, y: -2654.2, z: 0.3}
+    mapScales: {x: 125.15, y: 108.55, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0.02
+  - zoom: 12
+    mapPositions: {x: 1474, y: -5311, z: 0.3}
+    mapScales: {x: 250.4, y: 217.2, z: 1}
+    linewidthMultiplier: 1
+    textSizeMultiplier: 0
+  - zoom: 13
+    mapPositions: {x: 0, y: 0, z: 0}
+    mapScales: {x: 0, y: 0, z: 0}
+    linewidthMultiplier: 0
+    textSizeMultiplier: 0

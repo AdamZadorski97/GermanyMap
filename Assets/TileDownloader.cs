@@ -64,8 +64,8 @@ public class TileDownloader: MonoBehaviour
         for (int z = minZoom; z <= maxZoom; z++)
         {
             double tlx, tly, brx, bry;
-            map.projection.CoordinatesToTile(leftLongitude, topLatitude, z, out tlx, out tly);
-            map.projection.CoordinatesToTile(rightLongitude, bottomLatitude, z, out brx, out bry);
+            map.projection.CoordinatesToTile(5, 55, z, out tlx, out tly);
+            map.projection.CoordinatesToTile(46, 47, z, out brx, out bry);
 
             int itlx = (int)tlx;
             int itly = (int)tly;
@@ -122,7 +122,6 @@ public class TileDownloader: MonoBehaviour
 
     private void OnGUI()
     {
-        return;
         GUILayout.BeginArea(new Rect(10, 10, 300, Screen.height - 20));
 
         double newLeftLongitude = DoubleField("Left Longitude", leftLongitude);

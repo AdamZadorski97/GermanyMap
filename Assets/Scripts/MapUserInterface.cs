@@ -15,7 +15,13 @@ public class MapUserInterface : MonoBehaviour
     [SerializeField]
     private Button buttonSetBundeslaender;
     [SerializeField]
-    private Button buttonSetPlz;
+    private Button buttonSetPlz1;
+    [SerializeField]
+    private Button buttonSetPlz2;
+    [SerializeField]
+    private Button buttonSetPlz3;
+    [SerializeField]
+    private Button buttonSetPlz5;
     [SerializeField]
     private Button buttonFindPlz;
 
@@ -49,13 +55,19 @@ public class MapUserInterface : MonoBehaviour
         buttonSetKreise.onClick.RemoveAllListeners();
         buttonSetBundeslaender.onClick.RemoveAllListeners();
         buttonSetRegierungsbezirke.onClick.RemoveAllListeners();
-        buttonSetPlz.onClick.RemoveAllListeners();
+        buttonSetPlz1.onClick.RemoveAllListeners();
+        buttonSetPlz2.onClick.RemoveAllListeners();
+        buttonSetPlz3.onClick.RemoveAllListeners();
+        buttonSetPlz5.onClick.RemoveAllListeners();
         buttonFindPlz.onClick.RemoveAllListeners();
 
         buttonSetKreise.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Kreise));
         buttonSetBundeslaender.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Bundeslaender));
         buttonSetRegierungsbezirke.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Regierungsbezirke));
-        buttonSetPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz1Stelig));
+        buttonSetPlz1.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz1Stelig));
+        buttonSetPlz2.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz2Stelig));
+        buttonSetPlz3.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz3Stelig));
+        buttonSetPlz5.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz5Stelig));
         buttonFindPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.SearchPlace());
     }
     private void SetupToggles()
@@ -64,7 +76,7 @@ public class MapUserInterface : MonoBehaviour
         toggleAutoPlzZoom.onValueChanged.AddListener(delegate { GeoJSONFileReader.Instance.SetAutoPlzZoom(); });
     }
 
-    public void SetPlzText(string message)
+    public void SetText(string message)
     {
         textPlzNumber.text = message;
     }

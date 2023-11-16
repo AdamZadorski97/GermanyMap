@@ -17,7 +17,7 @@ class CameraController : MonoBehaviour
 
     void Update()
     {
-        HandleCamera();
+      //  HandleCamera();
     }
 
     private void HandleCamera()
@@ -48,7 +48,7 @@ class CameraController : MonoBehaviour
             Camera.main.transform.position += direction;
         }
 
-        //HandleZoom(Input.GetAxis("Mouse ScrollWheel") * 10);
+        HandleZoom(Input.GetAxis("Mouse ScrollWheel") * 10);
     }
 
     void HandleZoom(float increment)

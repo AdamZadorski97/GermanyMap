@@ -1,3 +1,4 @@
+
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,8 +31,36 @@ public class LandController : MonoBehaviour
     public double qkm { get; set; }
 
     [ShowInInspector]
+    public int ID_0 { get; set; }
+    [ShowInInspector]
+    public string ISO { get; set; }
+    [ShowInInspector]
+    public string name { get; set; }
+    public string NAME_0 { get; set; }
+    [ShowInInspector]
+    public int ID_1 { get; set; }
+    [ShowInInspector]
+    public string NAME_1 { get; set; }
+    [ShowInInspector]
+    public int ID_2 { get; set; }
+    [ShowInInspector]
+    public string NAME_2 { get; set; }
+    [ShowInInspector]
+    public int ID_3 { get; set; }
+    [ShowInInspector]
+    public string NAME_3 { get; set; }
+    [ShowInInspector]
+    public string NL_NAME_3 { get; set; }
+    [ShowInInspector]
+    public string VARNAME_3 { get; set; }
+    [ShowInInspector]
+    public string TYPE_3 { get; set; }
+    [ShowInInspector]
+    public string ENGTYPE_3 { get; set; }
+
+    [ShowInInspector]
     public List<Vector3> coordinates { get; set; }
-    
+
     [ShowInInspector]
     public SerializableGeoDate serializableGeoDate { get; set; }
 
@@ -46,8 +75,9 @@ public class LandController : MonoBehaviour
     {
         ResetLand();
     }
+    private Vector3 originalPosition;
 
-    public void SetupText()
+    public void SetupText(string text)
     {
         if (lineRenderer.positionCount == 0)
         {
@@ -57,17 +87,28 @@ public class LandController : MonoBehaviour
 
         Vector3[] linePositions = new Vector3[lineRenderer.positionCount];
         lineRenderer.GetPositions(linePositions);
+        textMesh.transform.localPosition = Vector3.zero;
+        textMesh.text = text;
+        originalPosition = transform.position;
+        CenterPivotAndAdjustLineRenderer();
 
-        center = GetCenterOfPositions(linePositions);
-        textMesh.transform.localPosition = center;
-        textMesh.text = plz;
     }
 
     public void Highlight()
     {
         if (plz != "")
         {
-            MapUserInterface.Instance.SetPlzText(plz);
+            MapType currentType = GeoJSONFileReader.Instance.currentType;
+
+
+            if (currentType == MapType.Plz1Stelig || currentType == MapType.Plz2Stelig || currentType == MapType.Plz3Stelig || currentType == MapType.Plz5Stelig)
+                MapUserInterface.Instance.SetText(plz);
+            if (currentType == MapType.Kreise)
+                MapUserInterface.Instance.SetText(NAME_3);
+            if (currentType == MapType.Bundeslaender)
+                MapUserInterface.Instance.SetText(name);
+            if (currentType == MapType.Regierungsbezirke)
+                MapUserInterface.Instance.SetText(NAME_2);
         }
         meshRenderer.material = highlightMaterial;
     }
@@ -78,22 +119,45 @@ public class LandController : MonoBehaviour
     }
 
 
-    Vector3 GetCenterOfPositions(Vector3[] positions)
+    private void CenterPivotAndAdjustLineRenderer()
     {
-        if (positions.Length == 0)
+        if (meshFilter == null || lineRenderer == null) return;
+
+        // Calculate the centroid of the mesh
+        Vector3 centroid = Vector3.zero;
+        foreach (Vector3 vertex in meshFilter.mesh.vertices)
         {
-            Debug.LogError("Array of positions is empty.");
-            return Vector3.zero;
+            centroid += transform.TransformPoint(vertex); // Get the world position of each vertex
+        }
+        centroid /= meshFilter.mesh.vertexCount;
+
+        // Offset to move the pivot to the centroid
+        Vector3 pivotOffset = centroid - transform.position;
+
+        // Adjust vertices of mesh
+        Vector3[] vertices = meshFilter.mesh.vertices;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = transform.InverseTransformPoint(transform.TransformPoint(vertices[i]) - pivotOffset);
+        }
+        meshFilter.mesh.vertices = vertices;
+        meshFilter.mesh.RecalculateBounds();
+
+        // Adjust line renderer positions
+        for (int i = 0; i < lineRenderer.positionCount; i++)
+        {
+            Vector3 linePos = lineRenderer.GetPosition(i);
+            lineRenderer.SetPosition(i, transform.InverseTransformPoint(transform.TransformPoint(linePos) - pivotOffset));
         }
 
-        Vector3 sum = Vector3.zero;
-        foreach (Vector3 position in positions)
-        {
-            sum += position;
-        }
+        // Adjust the transform position to reflect the new pivot
+        transform.position = centroid;
 
-        return sum / positions.Length;
+        if (meshCollider != null)
+        {
+            meshCollider.sharedMesh = null;
+            meshCollider.sharedMesh = meshFilter.mesh;
+        }
     }
+
 }
-
-

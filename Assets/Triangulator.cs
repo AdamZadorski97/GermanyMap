@@ -10,7 +10,7 @@ public class Triangulator : MonoBehaviour
     {
         foreach (Vector3 p in points)
         {
-            m_points.Add(new Vector3(-p.x, -p.y, -p.z)); 
+            m_points.Add(new Vector3(-p.x, -p.y, -p.z));
         }
     }
 
@@ -79,7 +79,7 @@ public class Triangulator : MonoBehaviour
         {
             Vector3 pval = m_points[p];
             Vector3 qval = m_points[q];
-            A += pval.x * qval.z - qval.x * pval.z; 
+            A += pval.x * qval.z - qval.x * pval.z;
         }
         return (A * 0.5f);
     }
