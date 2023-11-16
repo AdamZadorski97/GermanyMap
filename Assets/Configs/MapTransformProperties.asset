@@ -23,7 +23,16 @@ MonoBehaviour:
       tangentMode: 0
       weightedMode: 3
       inWeight: 0
-      outWeight: 0.28950232
+      outWeight: 0.32058242
+    - serializedVersion: 3
+      time: 500
+      value: 1.1594192
+      inSlope: 0.000020080855
+      outSlope: 0.000020080855
+      tangentMode: 0
+      weightedMode: 3
+      inWeight: 0.3451157
+      outWeight: 0.3067592
     - serializedVersion: 3
       time: 4500
       value: 1.2160339
@@ -31,7 +40,7 @@ MonoBehaviour:
       outSlope: -0
       tangentMode: 0
       weightedMode: 3
-      inWeight: 0.33333334
+      inWeight: 0.32809785
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 8836.825
@@ -56,15 +65,24 @@ MonoBehaviour:
       tangentMode: 0
       weightedMode: 3
       inWeight: 0
-      outWeight: 0.325
+      outWeight: 0.30769968
+    - serializedVersion: 3
+      time: 2371.6956
+      value: 1.4863977
+      inSlope: 0.0006869413
+      outSlope: 0.0006869413
+      tangentMode: 0
+      weightedMode: 3
+      inWeight: 0.337358
+      outWeight: 0.3774624
     - serializedVersion: 3
       time: 4500
       value: 2.5
-      inSlope: -0
-      outSlope: -0
+      inSlope: 0.000010901557
+      outSlope: 0.000010901557
       tangentMode: 0
       weightedMode: 3
-      inWeight: 0.33333334
+      inWeight: 0.26482975
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 9000
@@ -125,14 +143,14 @@ MonoBehaviour:
     linewidthMultiplier: 1
     textSizeMultiplier: 0.02
   - zoom: 12
-    mapPositions: {x: 7383, y: -26543, z: 0.3}
-    mapScales: {x: 627, y: 542.9599, z: 1}
+    mapPositions: {x: 14742, y: -53081, z: 0.3}
+    mapScales: {x: 2502, y: 2171, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0
   - zoom: 13
-    mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 0
+    mapPositions: {x: 22465, y: -69846, z: 0.3}
+    mapScales: {x: 3541.581, y: 3073.051, z: 1}
+    linewidthMultiplier: 1
     textSizeMultiplier: 0
   - zoom: 14
     mapPositions: {x: 0, y: 0, z: 0}
