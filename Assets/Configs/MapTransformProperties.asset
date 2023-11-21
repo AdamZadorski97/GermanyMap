@@ -96,7 +96,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  zoomRanges:
+  mapTransformProperties:
   - zoom: 3
     mapPositions: {x: 0, y: 0, z: 0.3}
     mapScales: {x: 0.25, y: 0.21, z: 1}
@@ -172,3 +172,12 @@ MonoBehaviour:
     mapScales: {x: 0, y: 0, z: 0}
     linewidthMultiplier: 0
     textSizeMultiplier: 0
+  zoomProperties:
+  - zoomLevelToSwitch: 13
+    mapType: 4
+  - zoomLevelToSwitch: 11
+    mapType: 3
+  - zoomLevelToSwitch: 9
+    mapType: 2
+  - zoomLevelToSwitch: 7
+    mapType: 1

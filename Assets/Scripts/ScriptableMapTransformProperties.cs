@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,8 +9,22 @@ public class ScriptableMapTransformProperties : ScriptableObject
 {
     public AnimationCurve animationCurveVertical;
     public AnimationCurve animationCurveHorisontal;
-    public List<MapTransformProperties> zoomRanges;
+    public List<MapTransformProperties> mapTransformProperties;
+    public List<MapZoomProperties> zoomProperties;
 }
+
+
+[Serializable]
+public class MapZoomProperties
+{
+    public int zoomLevelToSwitch;
+    public MapType mapType;
+}
+
+
+
+
+
 
 [Serializable]
 public class MapTransformProperties

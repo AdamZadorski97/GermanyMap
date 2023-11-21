@@ -156,7 +156,16 @@ public class LandController : MonoBehaviour
         if (meshCollider != null)
         {
             meshCollider.sharedMesh = null;
-            meshCollider.sharedMesh = meshFilter.mesh;
+            try
+            {
+                meshCollider.sharedMesh = meshFilter.mesh;
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+          
         }
     }
 
