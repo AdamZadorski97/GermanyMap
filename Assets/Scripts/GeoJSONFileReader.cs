@@ -253,6 +253,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
     void SwitchElement(int index)
     {
+        if(geoJSONProcessingHandle!=null)
         Timing.KillCoroutines(geoJSONProcessingHandle);
         foreach (GameObject land in landPrefabsClones)
         {
@@ -339,15 +340,15 @@ public class GeoJSONFileReader : MonoBehaviour
         }
         if (currentType == MapType.Plz2Stelig)
         {
-            minFeaturesToProcess = 2;
+            minFeaturesToProcess = 1;
         }
         if (currentType == MapType.Plz3Stelig)
         {
-            minFeaturesToProcess = 5;
+            minFeaturesToProcess = 3;
         }
         if (currentType == MapType.Plz5Stelig)
         {
-            minFeaturesToProcess = 5;
+            minFeaturesToProcess = 8;
         }
         if (currentType == MapType.Kreise)
         {
@@ -355,11 +356,11 @@ public class GeoJSONFileReader : MonoBehaviour
         }
         if (currentType == MapType.Bundeslaender)
         {
-            minFeaturesToProcess = 2;
+            minFeaturesToProcess = 1;
         }
         if (currentType == MapType.Regierungsbezirke)
         {
-            minFeaturesToProcess = 2;
+            minFeaturesToProcess = 1;
         }
 
 
@@ -429,6 +430,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
             }
+            SetupLandParentScaleAndPosition();
             processDone = true;
         }
         /*ObjectPooler.Instance.landParrent.transform.Rotate(0,0,180);*/

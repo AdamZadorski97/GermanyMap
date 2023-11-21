@@ -22,7 +22,7 @@ public class ZoomController : MonoBehaviour
 
         foreach (var prop in zoomProperties)
         {
-            if (currentZoom > prop.zoomLevelToSwitch)
+            if (currentZoom >= prop.zoomLevelToSwitch)
             {
                 if (geoJSONFileReader.currentType != prop.mapType)
                 {
