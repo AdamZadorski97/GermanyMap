@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -24,6 +25,10 @@ public class MapUserInterface : MonoBehaviour
     private Button buttonSetPlz5;
     [SerializeField]
     private Button buttonFindPlz;
+    [SerializeField]
+    private Button buttonZoomIn;
+    [SerializeField]
+    private Button buttonZoomOut;
 
     public Toggle toggleAutoPlzZoom;
 
@@ -38,13 +43,13 @@ public class MapUserInterface : MonoBehaviour
             return;
         }
         Instance = this;
-      
+
     }
 
 
     void Start()
     {
-        
+
         SetupButtons();
         SetupToggles();
     }
@@ -60,6 +65,9 @@ public class MapUserInterface : MonoBehaviour
         buttonSetPlz3.onClick.RemoveAllListeners();
         buttonSetPlz5.onClick.RemoveAllListeners();
         buttonFindPlz.onClick.RemoveAllListeners();
+        buttonZoomIn.onClick.RemoveAllListeners();
+        buttonZoomOut.onClick.RemoveAllListeners();
+
 
         buttonSetKreise.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Kreise));
         buttonSetBundeslaender.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Bundeslaender));
@@ -69,7 +77,36 @@ public class MapUserInterface : MonoBehaviour
         buttonSetPlz3.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz3Stelig));
         buttonSetPlz5.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz5Stelig));
         buttonFindPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.SearchPlace());
+        buttonZoomIn.onClick.AddListener(() => ZoomIn());
+        buttonZoomOut.onClick.AddListener(() => ZoomOut());
+        ;
     }
+
+
+    public void ZoomIn()
+    {
+        float targetZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom + 1;
+        DOTween.To(() => GeoJSONFileReader.Instance.OnlineMaps.zoom, x => SetZoom(x), targetZoom, 0.2f).SetEase(Ease.Linear);
+
+        GeoJSONFileReader.Instance.SetActiveRenderers(1);
+        // Other necessary actions...
+    }
+
+    public void ZoomOut()
+    {
+        float targetZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom - 1;
+        DOTween.To(() => GeoJSONFileReader.Instance.OnlineMaps.zoom, x => SetZoom(x), targetZoom, 0.2f).SetEase(Ease.Linear);
+
+        GeoJSONFileReader.Instance.SetActiveRenderers(-1);
+        // Other necessary actions...
+    }
+
+    private void SetZoom(float zoomLevel)
+    {
+        OnlineMaps.instance.SetPositionAndZoom(GeoJSONFileReader.Instance.OnlineMaps.position.x, GeoJSONFileReader.Instance.OnlineMaps.position.y, zoomLevel);
+    }
+
+
     private void SetupToggles()
     {
         toggleAutoPlzZoom.isOn = GeoJSONFileReader.Instance.autoPlzZoom;
@@ -80,6 +117,6 @@ public class MapUserInterface : MonoBehaviour
     {
         textPlzNumber.text = message;
     }
-    
+
 
 }

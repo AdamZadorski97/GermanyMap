@@ -3,47 +3,47 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-//[Serializable]
+[Serializable]
 public class SerializableGeoDate
 {
-    public int id { get; set; }
-    public string bundesland_name { get; set; }
-    public string bundesland_nutscode { get; set; }
-    public string regierungsbezirk_name { get; set; }
-    public string regierungsbezirk_nutscode_kreis { get; set; }
-    public string kreisname_kreis { get; set; }
-    public string kreis_typ { get; set; }
-    public string kreis_nutscode { get; set; }
-    public string gemeinde_name { get; set; }
-    public string gemeinde_typ { get; set; }
-    public string gemeinde_ags { get; set; }
-    public string gemeinde_rs { get; set; }
-    public string gemeinde_lat { get; set; }
-    public string gemeinde_lon { get; set; }
-    public string ort_id { get; set; }
-    public string ort_name { get; set; }
-    public string ort_lat { get; set; }
-    public string ort_lon { get; set; }
-    public int postleitzahl { get; set; }
-    public string strasse_name { get; set; }
+    public int id;
+    public string bundesland_name;
+    public string bundesland_nutscode;
+    public string regierungsbezirk_name;
+    public string regierungsbezirk_nutscode_kreis;
+    public string kreisname_kreis;
+    public string kreis_typ;
+    public string kreis_nutscode;
+    public string gemeinde_name;
+    public string gemeinde_typ;
+    public string gemeinde_ags;
+    public string gemeinde_rs;
+    public string gemeinde_lat;
+    public string gemeinde_lon;
+    public string ort_id;
+    public string ort_name;
+    public string ort_lat;
+    public string ort_lon;
+    public int postleitzahl;
+    public string strasse_name;     
 }
 
 public class GeoDataFileReader : MonoBehaviour
 {
     [SerializeField] private string csvFilePath;
-    public static List<SerializableGeoDate> geoDates = new List<SerializableGeoDate>();
+    public List<SerializableGeoDate> geoDates = new List<SerializableGeoDate>();
 
     private void Awake()
     {
-        string csvFilePath = "Assets/StreamingAssets/2720_geodatendeutschland_3012_202309041.csv";
+        string csvFilePath = "2720_geodatendeutschland_3012_202309041.csv";
         string path = Path.Combine(Application.streamingAssetsPath, csvFilePath);
-
-        List<SerializableGeoDate> records = ReadDataFromCSV(csvFilePath);
-        geoDates = ReadDataFromCSV(csvFilePath);
+        geoDates = ReadDataFromCSV(path);
     }
+    
 
     private List<SerializableGeoDate> ReadDataFromCSV(string filePath)
     {
+        Debug.Log("Try do read data from csv");
         List<SerializableGeoDate> records = new List<SerializableGeoDate>();
 
         try

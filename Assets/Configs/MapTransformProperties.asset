@@ -110,7 +110,7 @@ MonoBehaviour:
   - zoom: 5
     mapPositions: {x: 116.88, y: -419.92, z: 0.29999}
     mapScales: {x: 19.81806, y: 17.15249, z: 1.373769}
-    linewidthMultiplier: 0.2
+    linewidthMultiplier: 1
     textSizeMultiplier: 0.1
   - zoom: 6
     mapPositions: {x: 0, y: 0, z: 0.3}
@@ -121,37 +121,37 @@ MonoBehaviour:
     mapPositions: {x: 461, y: -1669, z: 0.3}
     mapScales: {x: 78.18, y: 73.22575, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.25
+    textSizeMultiplier: 0.1
   - zoom: 8
     mapPositions: {x: 922.4, y: -3348, z: 0.3}
     mapScales: {x: 156.7, y: 146.8, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.2
+    textSizeMultiplier: 0.4
   - zoom: 9
     mapPositions: {x: 1842, y: -6691, z: 0.3}
     mapScales: {x: 313, y: 293.4, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.06
+    textSizeMultiplier: 0.2
   - zoom: 10
     mapPositions: {x: 3689.2, y: -13374.08, z: 0.3}
     mapScales: {x: 626.9, y: 586.5, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.04
+    textSizeMultiplier: 0.1
   - zoom: 11
     mapPositions: {x: 7365.04, y: -26759, z: 0.3}
     mapScales: {x: 1251.61, y: 1173.5, z: 1}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0.02
+    linewidthMultiplier: 2
+    textSizeMultiplier: 0.04
   - zoom: 12
     mapPositions: {x: 14753, y: -53518, z: 0.3}
     mapScales: {x: 2507.2, y: 2347, z: 1}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0
+    linewidthMultiplier: 2
+    textSizeMultiplier: 0.02
   - zoom: 13
     mapPositions: {x: 29499.57, y: -107062, z: 0.3}
     mapScales: {x: 5013.11, y: 4695.1, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0
+    textSizeMultiplier: 0.02
   - zoom: 14
     mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 0, y: 0, z: 0}
@@ -160,17 +160,17 @@ MonoBehaviour:
   - zoom: 15
     mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 0
+    linewidthMultiplier: 1
     textSizeMultiplier: 0
   - zoom: 16
     mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 0
+    linewidthMultiplier: 1
     textSizeMultiplier: 0
   - zoom: 17
     mapPositions: {x: 0, y: 0, z: 0}
     mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 0
+    linewidthMultiplier: 1
     textSizeMultiplier: 0
   zoomProperties:
   - zoomLevelToSwitch: 13

@@ -18,6 +18,10 @@ public class ZoomController : MonoBehaviour
 
     public void OnZoomChange()
     {
+
+        if (!geoJSONFileReader.autoPlzZoom)
+            return;
+
         int currentZoom = geoJSONFileReader.currentZoom;
 
         foreach (var prop in zoomProperties)

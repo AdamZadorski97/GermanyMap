@@ -1,8 +1,11 @@
 
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 public class LandController : MonoBehaviour
 {
@@ -13,12 +16,14 @@ public class LandController : MonoBehaviour
     public MeshCollider meshCollider;
 
     public Material highlightMaterial; // Assign a material with the green color in the Inspector
-    public Material originalMaterial;
+    public Material defaultMaterial;
+    public Material clickMaterial;
     public MeshRenderer meshRenderer;
     public List<Vector3> realCoordinates = new List<Vector3>();
     public List<Vector3> realCoordinatesToCentering = new List<Vector3>();
     public Vector3 center;
-
+    public string detailedText;
+    public string onMapText;
     [ShowInInspector]
     public string geometry { get; set; }
     [ShowInInspector]
@@ -64,10 +69,12 @@ public class LandController : MonoBehaviour
     [ShowInInspector]
     public SerializableGeoDate serializableGeoDate { get; set; }
 
-
+    private Vector3 mouseDownPosition;
+    private const float clickThreshold = 0.1f;
+    private Sequence OnClickSeqence;
     private void OnMouseEnter()
     {
-        Highlight();
+        HighlightOnMouseEnter();
     }
 
 
@@ -75,10 +82,30 @@ public class LandController : MonoBehaviour
     {
         ResetLand();
     }
+
+    private void OnMouseDown()
+    {
+        mouseDownPosition = Input.mousePosition;
+    }
+    private void OnMouseUp()
+    {
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            // If it is over a UI element, return early and do nothing
+            return;
+        }
+
+        // Your existing distance check to determine if it's a click and not a drag
+        if (Vector3.Distance(mouseDownPosition, Input.mousePosition) < clickThreshold)
+        {
+            OnMouseClick();
+        }
+    }
     private Vector3 originalPosition;
 
-    public void SetupText(string text)
+    public void SetupText(string onMapText = "", string _detailedText = "")
     {
+        detailedText = _detailedText;
         if (lineRenderer.positionCount == 0)
         {
             Debug.LogError("LineRenderer has no positions.");
@@ -88,13 +115,27 @@ public class LandController : MonoBehaviour
         Vector3[] linePositions = new Vector3[lineRenderer.positionCount];
         lineRenderer.GetPositions(linePositions);
         textMesh.transform.localPosition = Vector3.zero;
-        textMesh.text = text;
+        textMesh.text = onMapText;
         originalPosition = transform.position;
         CenterPivotAndAdjustLineRenderer();
-
+    }
+  
+    public void OnMouseClick()
+    {
+        Vector3 center = CalculateCenter(realCoordinatesToCentering);
+        float targetZoom = 7;
+        float duration = 0.25f;
+        Vector2 startPositionAndZoom = new Vector2( GeoJSONFileReader.Instance.OnlineMaps.position.x, GeoJSONFileReader.Instance.OnlineMaps.position.y);
+        float startZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom;
+        // GeoJSONFileReader.Instance.OnlineMaps.SetPositionAndZoom(realCoordinatesToCentering[0].x, realCoordinatesToCentering[0].z, 7);
+        DOTween.To(() => startPositionAndZoom, x => GeoJSONFileReader.Instance.OnlineMaps.SetPosition(x.x, x.y), new Vector2(center.x, center.z), duration);
+     
+        OnClickSeqence = DOTween.Sequence();
+        OnClickSeqence.Append(meshRenderer.material.DOColor(clickMaterial.color, duration));
+        OnClickSeqence.Append(meshRenderer.material.DOColor(defaultMaterial.color, duration));
     }
 
-    public void Highlight()
+    public void HighlightOnMouseEnter()
     {
         if (plz != "")
         {
@@ -102,20 +143,22 @@ public class LandController : MonoBehaviour
 
 
             if (currentType == MapType.Plz1Stelig || currentType == MapType.Plz2Stelig || currentType == MapType.Plz3Stelig || currentType == MapType.Plz5Stelig)
-                MapUserInterface.Instance.SetText(plz);
+                MapUserInterface.Instance.SetText(detailedText);
             if (currentType == MapType.Kreise)
-                MapUserInterface.Instance.SetText(NAME_3);
+                MapUserInterface.Instance.SetText(detailedText);
             if (currentType == MapType.Bundeslaender)
-                MapUserInterface.Instance.SetText(name);
+                MapUserInterface.Instance.SetText(detailedText);
             if (currentType == MapType.Regierungsbezirke)
-                MapUserInterface.Instance.SetText(NAME_2);
+                MapUserInterface.Instance.SetText(detailedText);
         }
-        meshRenderer.material = highlightMaterial;
+        OnClickSeqence = DOTween.Sequence();
+        OnClickSeqence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
     }
 
     public void ResetLand()
     {
-        meshRenderer.material = originalMaterial;
+        if(OnClickSeqence!=null)
+        meshRenderer.material = defaultMaterial;
     }
 
 
@@ -165,8 +208,20 @@ public class LandController : MonoBehaviour
 
                 throw;
             }
-          
+
         }
+    }
+    private Vector3 CalculateCenter(List<Vector3> coordinates)
+    {
+        if (coordinates == null || coordinates.Count == 0)
+            return Vector3.zero;
+
+        Vector3 sum = Vector3.zero;
+        foreach (Vector3 coord in coordinates)
+        {
+            sum += coord;
+        }
+        return sum / coordinates.Count;
     }
 
 }

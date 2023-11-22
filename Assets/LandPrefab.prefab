@@ -150,8 +150,11 @@ MonoBehaviour:
   meshFilter: {fileID: 6466650073491631690}
   meshCollider: {fileID: 0}
   highlightMaterial: {fileID: 2100000, guid: b761e952b94798545ab4e518ad8a6960, type: 2}
-  originalMaterial: {fileID: 2100000, guid: f4dbeb60383fb3048bd8e77cfb9f4411, type: 2}
+  defaultMaterial: {fileID: 2100000, guid: f4dbeb60383fb3048bd8e77cfb9f4411, type: 2}
+  clickMaterial: {fileID: 2100000, guid: c044f5e96eaf51746ac82e2aaa928a4d, type: 2}
   meshRenderer: {fileID: 8680811441718198519}
+  realCoordinates: []
+  realCoordinatesToCentering: []
   center: {x: 0, y: 0, z: 0}
 --- !u!120 &1174396524218917547
 LineRenderer:
