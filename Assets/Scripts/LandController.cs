@@ -72,6 +72,7 @@ public class LandController : MonoBehaviour
     private Vector3 mouseDownPosition;
     private const float clickThreshold = 0.1f;
     private Sequence OnClickSeqence;
+    public Vector3 textIntialScale;
     private void OnMouseEnter()
     {
         HighlightOnMouseEnter();
@@ -80,7 +81,7 @@ public class LandController : MonoBehaviour
 
     private void OnMouseExit()
     {
-        ResetLand();
+        DehighlightOnMouseExit();
     }
 
     private void OnMouseDown()
@@ -111,7 +112,7 @@ public class LandController : MonoBehaviour
             Debug.LogError("LineRenderer has no positions.");
             return;
         }
-
+ 
         Vector3[] linePositions = new Vector3[lineRenderer.positionCount];
         lineRenderer.GetPositions(linePositions);
         textMesh.transform.localPosition = Vector3.zero;
@@ -129,7 +130,7 @@ public class LandController : MonoBehaviour
         float startZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom;
         // GeoJSONFileReader.Instance.OnlineMaps.SetPositionAndZoom(realCoordinatesToCentering[0].x, realCoordinatesToCentering[0].z, 7);
         DOTween.To(() => startPositionAndZoom, x => GeoJSONFileReader.Instance.OnlineMaps.SetPosition(x.x, x.y), new Vector2(center.x, center.z), duration);
-     
+      
         OnClickSeqence = DOTween.Sequence();
         OnClickSeqence.Append(meshRenderer.material.DOColor(clickMaterial.color, duration));
         OnClickSeqence.Append(meshRenderer.material.DOColor(defaultMaterial.color, duration));
@@ -137,30 +138,50 @@ public class LandController : MonoBehaviour
 
     public void HighlightOnMouseEnter()
     {
+        string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
+
+        if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
+        {
+            foreach (var controller in landControllers)
+            {
+                controller.Highlight();
+            }
+        }
+    }
+
+    private void Highlight()
+    {
         if (plz != "")
         {
-            MapType currentType = GeoJSONFileReader.Instance.currentType;
-
-
-            if (currentType == MapType.Plz1Stelig || currentType == MapType.Plz2Stelig || currentType == MapType.Plz3Stelig || currentType == MapType.Plz5Stelig)
-                MapUserInterface.Instance.SetText(detailedText);
-            if (currentType == MapType.Kreise)
-                MapUserInterface.Instance.SetText(detailedText);
-            if (currentType == MapType.Bundeslaender)
-                MapUserInterface.Instance.SetText(detailedText);
-            if (currentType == MapType.Regierungsbezirke)
-                MapUserInterface.Instance.SetText(detailedText);
+            MapUserInterface.Instance.SetText(detailedText);
         }
         OnClickSeqence = DOTween.Sequence();
         OnClickSeqence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
+
+        Vector3 textHighlightScale = textMesh.transform.localScale * 1.1f;
+        textMesh.transform.DOScale(textHighlightScale, 0.2f);
     }
 
     public void ResetLand()
     {
-        if(OnClickSeqence!=null)
-        meshRenderer.material = defaultMaterial;
+        if (OnClickSeqence != null)
+        {
+            meshRenderer.material = defaultMaterial; // Assuming defaultMaterial is the original material
+            textMesh.transform.DOScale(textIntialScale, 0.2f); // Resetting the scale of textMesh
+        }
     }
+    public void DehighlightOnMouseExit()
+    {
+        string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
 
+        if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
+        {
+            foreach (var controller in landControllers)
+            {
+                controller.ResetLand();
+            }
+        }
+    }
 
     private void CenterPivotAndAdjustLineRenderer()
     {
@@ -223,5 +244,31 @@ public class LandController : MonoBehaviour
         }
         return sum / coordinates.Count;
     }
+    public float GetAreaSize()
+    {
+        if (meshFilter == null || meshFilter.mesh == null)
+            return 0f;
 
+        Mesh mesh = meshFilter.mesh;
+        float area = 0f;
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles;
+
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            Vector3 v1 = vertices[triangles[i]];
+            Vector3 v2 = vertices[triangles[i + 1]];
+            Vector3 v3 = vertices[triangles[i + 2]];
+            area += TriangleArea(v1, v2, v3);
+        }
+
+        return area;
+    }
+
+    private float TriangleArea(Vector3 v1, Vector3 v2, Vector3 v3)
+    {
+        // Calculate the area of a triangle given its vertices
+        Vector3 crossProduct = Vector3.Cross(v2 - v1, v3 - v1);
+        return crossProduct.magnitude * 0.5f;
+    }
 }
