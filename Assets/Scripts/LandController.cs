@@ -112,7 +112,7 @@ public class LandController : MonoBehaviour
             Debug.LogError("LineRenderer has no positions.");
             return;
         }
- 
+
         Vector3[] linePositions = new Vector3[lineRenderer.positionCount];
         lineRenderer.GetPositions(linePositions);
         textMesh.transform.localPosition = Vector3.zero;
@@ -120,17 +120,17 @@ public class LandController : MonoBehaviour
         originalPosition = transform.position;
         CenterPivotAndAdjustLineRenderer();
     }
-  
+
     public void OnMouseClick()
     {
         Vector3 center = CalculateCenter(realCoordinatesToCentering);
         float targetZoom = 7;
         float duration = 0.25f;
-        Vector2 startPositionAndZoom = new Vector2( GeoJSONFileReader.Instance.OnlineMaps.position.x, GeoJSONFileReader.Instance.OnlineMaps.position.y);
+        Vector2 startPositionAndZoom = new Vector2(GeoJSONFileReader.Instance.OnlineMaps.position.x, GeoJSONFileReader.Instance.OnlineMaps.position.y);
         float startZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom;
         // GeoJSONFileReader.Instance.OnlineMaps.SetPositionAndZoom(realCoordinatesToCentering[0].x, realCoordinatesToCentering[0].z, 7);
         DOTween.To(() => startPositionAndZoom, x => GeoJSONFileReader.Instance.OnlineMaps.SetPosition(x.x, x.y), new Vector2(center.x, center.z), duration);
-      
+
         OnClickSeqence = DOTween.Sequence();
         OnClickSeqence.Append(meshRenderer.material.DOColor(clickMaterial.color, duration));
         OnClickSeqence.Append(meshRenderer.material.DOColor(defaultMaterial.color, duration));
@@ -138,23 +138,33 @@ public class LandController : MonoBehaviour
 
     public void HighlightOnMouseEnter()
     {
+        MapUserInterface.Instance.SetText(detailedText);
         string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
 
-        if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
+
+        if (identifier != null)
         {
-            foreach (var controller in landControllers)
+            if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
             {
-                controller.Highlight();
+                foreach (var controller in landControllers)
+                {
+                    controller.Highlight();
+                }
             }
+
         }
+        else
+        {
+            Highlight();
+        }
+
     }
 
     private void Highlight()
     {
-        if (plz != "")
-        {
-            MapUserInterface.Instance.SetText(detailedText);
-        }
+
+
+
         OnClickSeqence = DOTween.Sequence();
         OnClickSeqence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
 
@@ -173,13 +183,19 @@ public class LandController : MonoBehaviour
     public void DehighlightOnMouseExit()
     {
         string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
-
-        if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
+        if (identifier != null)
         {
-            foreach (var controller in landControllers)
+            if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
             {
-                controller.ResetLand();
+                foreach (var controller in landControllers)
+                {
+                    controller.ResetLand();
+                }
             }
+        }
+        else
+        {
+            ResetLand();
         }
     }
 

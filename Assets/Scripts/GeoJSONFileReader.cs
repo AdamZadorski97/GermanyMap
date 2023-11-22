@@ -790,11 +790,14 @@ public class GeoJSONFileReader : MonoBehaviour
 
     public void ProcessAndSetupTextForLandControllers()
     {
+        if (currentType == MapType.Plz5Stelig) return;
+
         // Group by different unique identifiers based on the current type
         var groupedLandControllers = GroupLandControllersByType();
 
         foreach (var group in groupedLandControllers)
         {
+            
             LandController largestLandController = FindLargestLandController(group);
 
             foreach (LandController landController in group)
@@ -806,6 +809,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 }
                 else
                 {
+                   
                     landController.SetupText("");
                 }
             }
@@ -888,12 +892,13 @@ public class GeoJSONFileReader : MonoBehaviour
         {
             string key = GetIdentifierBasedOnCurrentType(landController);
 
+            if(key!=null)
             if (!identifierToLandControllersMap.ContainsKey(key))
             {
                 identifierToLandControllersMap[key] = new List<LandController>();
             }
-
-            identifierToLandControllersMap[key].Add(landController);
+            if (key != null)
+                identifierToLandControllersMap[key].Add(landController);
         }
     }
 

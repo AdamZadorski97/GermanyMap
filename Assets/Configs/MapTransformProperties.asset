@@ -25,7 +25,7 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0.32058242
     - serializedVersion: 3
-      time: 500
+      time: 462.5
       value: 1.1594192
       inSlope: 0.000020080855
       outSlope: 0.000020080855
@@ -77,7 +77,7 @@ MonoBehaviour:
       outWeight: 0.3774624
     - serializedVersion: 3
       time: 4500
-      value: 2.5
+      value: 2.6362953
       inSlope: 0.000010901557
       outSlope: 0.000010901557
       tangentMode: 0
@@ -121,7 +121,7 @@ MonoBehaviour:
     mapPositions: {x: 461, y: -1669, z: 0.3}
     mapScales: {x: 78.18, y: 73.22575, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 0.1
+    textSizeMultiplier: 1.5
   - zoom: 8
     mapPositions: {x: 922.4, y: -3348, z: 0.3}
     mapScales: {x: 156.7, y: 146.8, z: 1}
