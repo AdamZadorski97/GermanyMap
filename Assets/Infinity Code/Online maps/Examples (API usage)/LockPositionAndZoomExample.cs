@@ -23,9 +23,9 @@ namespace InfinityCode.OnlineMapsExamples
         {
             // If the map is not specified, get the current instance.
             if (map == null) map = OnlineMaps.instance;
-            
+
             // Lock map zoom range
-           // map.zoomRange = new OnlineMapsRange(minZoom, maxZoom);
+          //  map.zoomRange = new OnlineMapsRange(minZoom, maxZoom);
            // map.zoom = minZoom;
             // Lock map coordinates range
             map.positionRange = new OnlineMapsPositionRange(47, 5, 55, 15);
