@@ -519,17 +519,20 @@ public class GeoJSONFileReader : MonoBehaviour
                             innerMeshPositions.Clear();
 
                             // Process each LinearRing
-                            foreach (var coordinate in linearRing) // Iterate through each coordinate in LinearRing
+                            if (currentType == MapType.Kreise)
                             {
-                                Vector3 position = new Vector3(
-                                    (float)coordinate[0] * scale, // Longitude
-                                    0f,                           // Y-coordinate (assuming flat map)
-                                    (float)coordinate[1] * scale  // Latitude
-                                );
-                                lineRendererPositions.Add(position);
-                                // Add more processing if needed
+                                foreach (var coordinate in linearRing) // Iterate through each coordinate in LinearRing
+                                {
+                                    Vector3 position = new Vector3(
+                                        (float)coordinate[0] * scale, // Longitude
+                                        0f,                           // Y-coordinate (assuming flat map)
+                                        (float)coordinate[1] * scale  // Latitude
+                                    );
+                                    lineRendererPositions.Add(position);
+                                    // Add more processing if needed
+                                }
                             }
-
+                            UpdatePositionLists(polygon, ref lineRendererPositions, ref geographicalPositions, ref innerMeshPositions, ref innerGeographicalPositions);
                             if (lineRendererPositions.Count < 15)
                             {
                                 continue; // Skip this LinearRing
@@ -840,7 +843,7 @@ public class GeoJSONFileReader : MonoBehaviour
     }
 
     private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions, ref List<Vector3> geographicalPositions,
-        ref List<Vector3> innerMeshPositions, ref List<Vector3> innerGeographicalPositions)
+     ref List<Vector3> innerMeshPositions, ref List<Vector3> innerGeographicalPositions)
     {
         foreach (var linearRing in coordinates)
         {
@@ -864,14 +867,22 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         lineRendererPositions.Add(position);
                         innerMeshPositions.Add(position);
-                        geographicalPositions.Add(geographicPositions);
-                        innerGeographicalPositions.Add(geographicPositions);
                         return;
                     }
                     else
                     {
                         lineRendererPositions.Add(position);
                         innerMeshPositions.Add(position);
+                    }
+
+                    if (geographicalPositions.Contains(geographicPositions))
+                    {
+                        geographicalPositions.Add(geographicPositions);
+                        innerGeographicalPositions.Add(geographicPositions);
+                        return;
+                    }
+                    else
+                    {
                         geographicalPositions.Add(geographicPositions);
                         innerGeographicalPositions.Add(geographicPositions);
                     }
@@ -879,6 +890,7 @@ public class GeoJSONFileReader : MonoBehaviour
             }
         }
     }
+
     private void SetupLandControllerText(LandController landController)
     {
         string textDetailed = "";
