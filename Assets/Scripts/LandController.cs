@@ -128,6 +128,7 @@ public class LandController : MonoBehaviour
         float duration = 0.25f;
         Vector2 startPositionAndZoom = new Vector2(GeoJSONFileReader.Instance.OnlineMaps.position.x, GeoJSONFileReader.Instance.OnlineMaps.position.y);
         float startZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom;
+        Debug.Log(center);
         // GeoJSONFileReader.Instance.OnlineMaps.SetPositionAndZoom(realCoordinatesToCentering[0].x, realCoordinatesToCentering[0].z, 7);
         DOTween.To(() => startPositionAndZoom, x => GeoJSONFileReader.Instance.OnlineMaps.SetPosition(x.x, x.y), new Vector2(center.x, center.z), duration);
 

@@ -129,7 +129,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
     private IEnumerator<float> ZoomWait(int value)
     {
-        //  yield return Timing.WaitForOneFrame;
+         yield return Timing.WaitForOneFrame;
         Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
         {
             if (value == -1)
@@ -139,7 +139,7 @@ public class GeoJSONFileReader : MonoBehaviour
             }
             if (value == 1)
             {
-                if (currentZoom < OnlineMaps.MAXZOOM)
+                if (currentZoom <= OnlineMaps.MAXZOOM)
                     currentZoom++;
             }
         }
@@ -459,7 +459,7 @@ public class GeoJSONFileReader : MonoBehaviour
         }
         if (currentType == MapType.Kreise)
         {
-            minFeaturesToProcess = 10;
+            minFeaturesToProcess = 1;
         }
         if (currentType == MapType.Bundeslaender)
         {
@@ -511,21 +511,37 @@ public class GeoJSONFileReader : MonoBehaviour
                 {
                     List<List<List<double[]>>> multiPolygonCoordinates = GeometryUtilities.ConvertJArrayToMultiPolygonList((JArray)feature.geometry.coordinates);
 
-                    foreach (var polygon in multiPolygonCoordinates)
+                    foreach (var polygon in multiPolygonCoordinates) // Iterate through each Polygon in MultiPolygon
                     {
-
-                        lineRendererPositions.Clear();
-                        innerMeshPositions.Clear();
-                        UpdatePositionLists(polygon, ref lineRendererPositions, ref geographicalPositions, ref innerMeshPositions, ref innerGeographicalPositions);
-
-                        if (lineRendererPositions.Count < 15)
+                        foreach (var linearRing in polygon) // Iterate through each LinearRing in Polygon
                         {
-                            continue; // Skip this polygon in the MultiPolygon
+                            lineRendererPositions.Clear();
+                            innerMeshPositions.Clear();
+
+                            // Process each LinearRing
+                            foreach (var coordinate in linearRing) // Iterate through each coordinate in LinearRing
+                            {
+                                Vector3 position = new Vector3(
+                                    (float)coordinate[0] * scale, // Longitude
+                                    0f,                           // Y-coordinate (assuming flat map)
+                                    (float)coordinate[1] * scale  // Latitude
+                                );
+                                lineRendererPositions.Add(position);
+                                // Add more processing if needed
+                            }
+
+                            if (lineRendererPositions.Count < 15)
+                            {
+                                continue; // Skip this LinearRing
+                            }
+
+                            Debug.Log(feature.properties.NAME_3 + " " + lineRendererPositions.Count);
+                            GameObject land = ObjectPooler.Instance.GetPooledObject();
+                            land.name = "MultiPolygon";
+
+                            RenderLandGeometry(land, lineRendererPositions, geographicalPositions);
+                            SetupLand(land, feature);
                         }
-                        GameObject land = ObjectPooler.Instance.GetPooledObject();
-                        land.name = "MultiPolygon";
-                        RenderLandGeometry(land, lineRendererPositions, geographicalPositions);
-                        SetupLand(land, feature);
                     }
                 }
             }
@@ -703,6 +719,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
         if (currentType == MapType.Kreise)
         {
+
             landController.NAME_3 = feature.properties.NAME_3;
 
         }
@@ -847,22 +864,14 @@ public class GeoJSONFileReader : MonoBehaviour
                     {
                         lineRendererPositions.Add(position);
                         innerMeshPositions.Add(position);
-                        return;
-                    }
-                    else
-                    {
-                        lineRendererPositions.Add(position);
-                        innerMeshPositions.Add(position);
-                    }
-
-                    if (geographicalPositions.Contains(geographicPositions))
-                    {
                         geographicalPositions.Add(geographicPositions);
                         innerGeographicalPositions.Add(geographicPositions);
                         return;
                     }
                     else
                     {
+                        lineRendererPositions.Add(position);
+                        innerMeshPositions.Add(position);
                         geographicalPositions.Add(geographicPositions);
                         innerGeographicalPositions.Add(geographicPositions);
                     }

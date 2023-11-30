@@ -47,7 +47,7 @@ public class OnlineMaps : MonoBehaviour, ISerializationCallbackReceiver, IOnline
     public const int MAXZOOM = 12;
 #endif
 
-    public const float MAXZOOM_DELTA = 0.999f;
+    public const float MAXZOOM_DELTA = 1;
     public const float MAXZOOM_EXT = MAXZOOM + MAXZOOM_DELTA;
 
     #region Static Actions

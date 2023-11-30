@@ -4589,7 +4589,7 @@ MonoBehaviour:
   - regierungsbezirke.geojson
   - bundeslaender.geojson
   scale: 30
-  mapTransformProperties: {fileID: 11400000, guid: 791f91d1c64b3da4aa663a2a349cb000, type: 2}
+  mapTransformProperties: {fileID: 11400000, guid: 84c0ce635d9ded34283a386815c18a3d, type: 2}
   geoJSONFilePath: plz-5stellig5.geojson
   landPrefab: {fileID: 8249367896411087095, guid: aa060b4154e18fa499586c04e1023b31, type: 3}
   cameraController: {fileID: 519420034}
