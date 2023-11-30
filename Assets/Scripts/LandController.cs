@@ -164,7 +164,7 @@ public class LandController : MonoBehaviour
     {
 
 
-
+        meshRenderer.enabled = true;
         OnClickSeqence = DOTween.Sequence();
         OnClickSeqence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
 
@@ -182,6 +182,7 @@ public class LandController : MonoBehaviour
     }
     public void DehighlightOnMouseExit()
     {
+        meshRenderer.enabled = false;
         string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
         if (identifier != null)
         {

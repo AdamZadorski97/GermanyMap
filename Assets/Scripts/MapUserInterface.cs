@@ -69,13 +69,13 @@ public class MapUserInterface : MonoBehaviour
         buttonZoomOut.onClick.RemoveAllListeners();
 
 
-        buttonSetKreise.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Kreise));
-        buttonSetBundeslaender.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Bundeslaender));
-        buttonSetRegierungsbezirke.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Regierungsbezirke));
-        buttonSetPlz1.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz1Stelig));
-        buttonSetPlz2.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz2Stelig));
-        buttonSetPlz3.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz3Stelig));
-        buttonSetPlz5.onClick.AddListener(() => GeoJSONFileReader.Instance.SetupMap(MapType.Plz5Stelig));
+        buttonSetKreise.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Kreise);});
+        buttonSetBundeslaender.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Bundeslaender);});
+        buttonSetRegierungsbezirke.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Regierungsbezirke);});
+        buttonSetPlz1.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz1Stelig);});
+        buttonSetPlz2.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz2Stelig); });
+        buttonSetPlz3.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz3Stelig); });
+        buttonSetPlz5.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz5Stelig); });
         buttonFindPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.SearchPlace());
         buttonZoomIn.onClick.AddListener(() => ZoomIn());
         buttonZoomOut.onClick.AddListener(() => ZoomOut());
@@ -117,6 +117,4 @@ public class MapUserInterface : MonoBehaviour
     {
         textPlzNumber.text = message;
     }
-
-
 }

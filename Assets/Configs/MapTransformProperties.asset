@@ -97,21 +97,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   mapTransformProperties:
-  - zoom: 3
-    mapPositions: {x: 0, y: 0, z: 0.3}
-    mapScales: {x: 0.25, y: 0.21, z: 1}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0.1
-  - zoom: 4
-    mapPositions: {x: 0, y: 0, z: 0.3}
-    mapScales: {x: 0.485, y: 0.425, z: 1}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0.1
-  - zoom: 5
-    mapPositions: {x: 116.88, y: -419.92, z: 0.29999}
-    mapScales: {x: 19.81806, y: 17.15249, z: 1.373769}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0.1
   - zoom: 6
     mapPositions: {x: 0, y: 0, z: 0.3}
     mapScales: {x: 19.44886, y: 16.85399, z: 1}
@@ -121,7 +106,7 @@ MonoBehaviour:
     mapPositions: {x: 461, y: -1669, z: 0.3}
     mapScales: {x: 78.18, y: 73.22575, z: 1}
     linewidthMultiplier: 1
-    textSizeMultiplier: 1.5
+    textSizeMultiplier: 0.8
   - zoom: 8
     mapPositions: {x: 922.4, y: -3348, z: 0.3}
     mapScales: {x: 156.7, y: 146.8, z: 1}
@@ -152,26 +137,6 @@ MonoBehaviour:
     mapScales: {x: 5013.11, y: 4695.1, z: 1}
     linewidthMultiplier: 1
     textSizeMultiplier: 0.02
-  - zoom: 14
-    mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 0
-    textSizeMultiplier: 0
-  - zoom: 15
-    mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0
-  - zoom: 16
-    mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0
-  - zoom: 17
-    mapPositions: {x: 0, y: 0, z: 0}
-    mapScales: {x: 0, y: 0, z: 0}
-    linewidthMultiplier: 1
-    textSizeMultiplier: 0
   zoomProperties:
   - zoomLevelToSwitch: 13
     mapType: 4

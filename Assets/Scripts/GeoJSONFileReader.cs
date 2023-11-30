@@ -9,6 +9,8 @@ using System.Linq;
 using MEC;
 using UnityEngine.UI;
 using DG.Tweening;
+using System.Collections;
+using TMPro;
 
 public class GeoJSONCoordinate
 {
@@ -144,9 +146,12 @@ public class GeoJSONFileReader : MonoBehaviour
 
 
         SetupLandParentScaleAndPosition();
-        land.gameObject.SetActive(false);
-        yield return Timing.WaitForSeconds(0.1f);
-        land.gameObject.SetActive(true);
+        if (processDone)
+        {
+            land.gameObject.SetActive(false);
+            yield return Timing.WaitForSeconds(0.1f);
+            land.gameObject.SetActive(true);
+        }
         yield return Timing.WaitForSeconds(1f);
         GetComponent<ZoomController>().OnZoomChange();
 
@@ -173,10 +178,20 @@ public class GeoJSONFileReader : MonoBehaviour
             SetupMap(MapType.Plz1Stelig);
     }
 
+
+    public bool mapSwitch;
     public void SetupMap(MapType type)
     {
-        if (currentType == type)
-            return;
+        StartCoroutine(SetupMapCoroutine(type));
+    }
+
+    IEnumerator SetupMapCoroutine(MapType type)
+    {
+        if (currentType == type) yield break;
+        Debug.Log("ZOOOOOOM");
+
+        yield return new WaitForSeconds(0.25f);
+
         currentType = type;
 
         ResetMapFlags();
@@ -185,29 +200,44 @@ public class GeoJSONFileReader : MonoBehaviour
         {
             case MapType.Plz1Stelig:
                 isPlz1Stelig = true;
+                destinationInput.text = null;
+                destinationInput.placeholder.GetComponent<Text>().text = "Find plz 1 stellig";
                 break;
             case MapType.Plz2Stelig:
                 isPlz2Stelig = true;
+                destinationInput.text = null;
+                destinationInput.placeholder.GetComponent<Text>().text = "Find plz 2 stellig";
                 break;
             case MapType.Plz3Stelig:
                 isPlz3Stelig = true;
+                destinationInput.text = null;
+                destinationInput.placeholder.GetComponent<Text>().text = "Find plz 3 stellig";
                 break;
             case MapType.Plz5Stelig:
                 isPlz5Stelig = true;
+                destinationInput.text = null;
+                destinationInput.placeholder.GetComponent<Text>().text = "Find plz 5 stellig";
                 break;
             case MapType.Kreise:
                 isKreise = true;
+                destinationInput.text = null;
+                destinationInput.placeholder.GetComponent<Text>().text = "Find kreise";
                 break;
             case MapType.Regierungsbezirke:
                 isRegierungsbezirke = true;
+                destinationInput.text = null;
+                destinationInput.placeholder.GetComponent<Text>().text = "Find regierungsbezirke";
                 break;
             case MapType.Bundeslaender:
                 isBundeslaender = true;
+                destinationInput.text = null;
+                destinationInput.placeholder.GetComponent<Text>().text = "Find bundeslaender";
                 break;
         }
         LoadGeoJSON(geoJSONFilePaths[(int)type - 1]);
         SwitchElement((int)type - 1);
     }
+
 
     private void ResetMapFlags()
     {
@@ -333,12 +363,13 @@ public class GeoJSONFileReader : MonoBehaviour
     void SwitchElement(int index)
     {
         if (geoJSONProcessingHandle != null)
+        {
             Timing.KillCoroutines(geoJSONProcessingHandle);
+            processDone = true;
+        }
         foreach (GameObject land in landPrefabsClones)
         {
-
             ObjectPooler.Instance.ReturnObjectToPool(land);
-
         }
         landPrefabsClones.Clear();
         LandControllersSearch.Clear();
@@ -395,12 +426,11 @@ public class GeoJSONFileReader : MonoBehaviour
     public bool processDone = true;
     IEnumerator<float> ProcessGeoJSONFeatures()
     {
-        do
+        while (!processDone)
         {
             yield return Timing.WaitForOneFrame;
             Debug.Log("Process Waiting");
         }
-        while (!processDone);
 
         processDone = false;
         while (!CheckParrent())
@@ -450,6 +480,9 @@ public class GeoJSONFileReader : MonoBehaviour
             List<Vector3> geographicalPositions = new List<Vector3>();
             List<Vector3> innerGeographicalPositions = new List<Vector3>();
 
+
+
+
             if (feature.geometry != null)
             {
 
@@ -471,7 +504,7 @@ public class GeoJSONFileReader : MonoBehaviour
                     GameObject land = ObjectPooler.Instance.GetPooledObject();
                     land.name = "Polygon";
 
-                    RenderLandGeometry(land, lineRendererPositions, innerMeshPositions, geographicalPositions, innerGeographicalPositions);
+                    RenderLandGeometry(land, lineRendererPositions, geographicalPositions);
                     SetupLand(land, feature);
                 }
                 else if (feature.geometry.type == "MultiPolygon")
@@ -491,7 +524,7 @@ public class GeoJSONFileReader : MonoBehaviour
                         }
                         GameObject land = ObjectPooler.Instance.GetPooledObject();
                         land.name = "MultiPolygon";
-                        RenderLandGeometry(land, lineRendererPositions, innerMeshPositions, geographicalPositions, innerGeographicalPositions);
+                        RenderLandGeometry(land, lineRendererPositions, geographicalPositions);
                         SetupLand(land, feature);
                     }
                 }
@@ -507,7 +540,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 yield return Timing.WaitForOneFrame; // Pause the method and continue from here in the next frame.
                 featuresProcessed = 0;
             }
-            SetupLandParentScaleAndPosition();
+            // SetupLandParentScaleAndPosition();
 
 
         }
@@ -528,10 +561,91 @@ public class GeoJSONFileReader : MonoBehaviour
             land.transform.localScale = Vector3.one * 0.01666666f;
             landPrefabsClones.Add(land);
         }
+        MapTransformProperties zoomProperties = GetMapProperties(currentZoom);
+        landController.lineRenderer.startWidth = zoomProperties.linewidthMultiplier;
+        landController.lineRenderer.endWidth = zoomProperties.linewidthMultiplier;
+        if (currentType == MapType.Plz5Stelig)
+        {
+            if (currentZoom < 10)
+            {
+                landController.textIntialScale = Vector3.one * 0;
+                landController.textMesh.transform.localScale = Vector3.one * 0;
+            }
+            else
+            {
+                landController.textIntialScale = Vector3.one * zoomProperties.textSizeMultiplier;
+                landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
+            }
 
-        landController.lineRenderer.startWidth = mapTransformProperties.mapTransformProperties[currentZoom].linewidthMultiplier;
-        landController.lineRenderer.endWidth = mapTransformProperties.mapTransformProperties[currentZoom].linewidthMultiplier;
-        landController.textMesh.transform.localScale = Vector3.one * mapTransformProperties.mapTransformProperties[currentZoom].textSizeMultiplier;
+        }
+
+        if (currentType == MapType.Plz3Stelig)
+        {
+            if (currentZoom < 9)
+            {
+                landController.textIntialScale = Vector3.one * 0;
+                landController.textMesh.transform.localScale = Vector3.one * 0;
+            }
+            else
+            {
+                landController.textIntialScale = Vector3.one * zoomProperties.textSizeMultiplier;
+                landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
+            }
+
+        }
+
+        if (currentType == MapType.Plz2Stelig)
+        {
+            if (currentZoom < 8)
+            {
+                landController.textIntialScale = Vector3.one * 0;
+                landController.textMesh.transform.localScale = Vector3.one * 0;
+            }
+            else
+            {
+                landController.textIntialScale = Vector3.one * zoomProperties.textSizeMultiplier;
+                landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
+            }
+        }
+
+        if (currentType == MapType.Plz1Stelig)
+        {
+            landController.textIntialScale = Vector3.one * zoomProperties.textSizeMultiplier;
+            landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
+        }
+
+
+        if (currentType == MapType.Kreise)
+        {
+            if (currentZoom < 9)
+            {
+                landController.textIntialScale = Vector3.one * 0;
+                landController.textMesh.transform.localScale = Vector3.one * 0;
+            }
+            else
+            {
+                landController.textIntialScale = Vector3.one * zoomProperties.textSizeMultiplier;
+                landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
+            }
+
+        }
+
+        if (currentType == MapType.Bundeslaender)
+        {
+
+            landController.textIntialScale = Vector3.one * zoomProperties.textSizeMultiplier;
+            landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
+        }
+
+        if (currentType == MapType.Regierungsbezirke)
+        {
+
+            landController.textIntialScale = Vector3.one * zoomProperties.textSizeMultiplier;
+            landController.textMesh.transform.localScale = Vector3.one * zoomProperties.textSizeMultiplier;
+        }
+
+
+
         LandControllersSearch.Add(landController);
 
 
@@ -625,7 +739,13 @@ public class GeoJSONFileReader : MonoBehaviour
 
     public void SearchPlace()
     {
-        string searchText = destinationInput.text;
+        foreach (var landController in LandControllersSearch)
+        {
+            landController.DehighlightOnMouseExit();
+        }
+
+
+            string searchText = destinationInput.text;
         int zoom = 0; ;
         List<LandController> matchingControllers = new List<LandController>();
 
@@ -797,7 +917,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
         foreach (var group in groupedLandControllers)
         {
-            
+
             LandController largestLandController = FindLargestLandController(group);
 
             foreach (LandController landController in group)
@@ -809,7 +929,7 @@ public class GeoJSONFileReader : MonoBehaviour
                 }
                 else
                 {
-                   
+
                     landController.SetupText("");
                 }
             }
@@ -856,20 +976,22 @@ public class GeoJSONFileReader : MonoBehaviour
         return positions;
     }
 
-    private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions, List<Vector3> innerMeshPositions, List<Vector3> geographicalPositions, List<Vector3> innerGeographicalPositions)
+    private void RenderLandGeometry(GameObject land, List<Vector3> lineRendererPositions,
+                                    List<Vector3> geographicalPositions)
     {
         LandController landController = land.GetComponent<LandController>();
         landController.realCoordinates = lineRendererPositions;
         landController.realCoordinatesToCentering = geographicalPositions;
-        // Przemnóż pozycje lineRendererPositions i innerMeshPositions przy użyciu krzywych
-        List<Vector3> newLineRendererPositions = ApplyAnimationCurvesToPositions(lineRendererPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
-        List<Vector3> newInnerMeshPositions = ApplyAnimationCurvesToPositions(innerMeshPositions, mapTransformProperties.animationCurveVertical, mapTransformProperties.animationCurveHorisontal);
 
-        landController.lineRenderer.positionCount = lineRendererPositions.Count;
-        landController.lineRenderer.SetPositions(newLineRendererPositions.ToArray());
+        List<Vector3> newPositions = ApplyAnimationCurvesToPositions(lineRendererPositions,
+                                    mapTransformProperties.animationCurveVertical,
+                                    mapTransformProperties.animationCurveHorisontal);
 
-        int[] indices = GeometryUtilities.TriangulatePolygons(newInnerMeshPositions);
-        Mesh mesh = GeometryUtilities.CreateMeshFromIndices(newInnerMeshPositions, indices);
+        landController.lineRenderer.positionCount = newPositions.Count;
+        landController.lineRenderer.SetPositions(newPositions.ToArray());
+
+        int[] indices = GeometryUtilities.TriangulatePolygons(newPositions);
+        Mesh mesh = GeometryUtilities.CreateMeshFromIndices(newPositions, indices);
         landController.meshFilter.mesh = mesh;
 
         MeshCollider meshCollider = land.AddComponent<MeshCollider>();
@@ -882,7 +1004,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
 
 
-  
+
 
     private void UpdateIdentifierToLandControllersMap()
     {
@@ -892,11 +1014,11 @@ public class GeoJSONFileReader : MonoBehaviour
         {
             string key = GetIdentifierBasedOnCurrentType(landController);
 
-            if(key!=null)
-            if (!identifierToLandControllersMap.ContainsKey(key))
-            {
-                identifierToLandControllersMap[key] = new List<LandController>();
-            }
+            if (key != null)
+                if (!identifierToLandControllersMap.ContainsKey(key))
+                {
+                    identifierToLandControllersMap[key] = new List<LandController>();
+                }
             if (key != null)
                 identifierToLandControllersMap[key].Add(landController);
         }

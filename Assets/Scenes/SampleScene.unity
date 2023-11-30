@@ -4593,7 +4593,7 @@ MonoBehaviour:
   geoJSONFilePath: plz-5stellig5.geojson
   landPrefab: {fileID: 8249367896411087095, guid: aa060b4154e18fa499586c04e1023b31, type: 3}
   cameraController: {fileID: 519420034}
-  currentZoom: 0
+  currentZoom: 7
   serializableGeoDate: []
   OnlineMaps: {fileID: 295267019}
   destinationInput: {fileID: 309094248}
@@ -4601,6 +4601,7 @@ MonoBehaviour:
   map: {fileID: 295267019}
   geoDataFileReader: {fileID: 877494907}
   currentType: 0
+  mapSwitch: 0
   jsonLoaded: 0
   processDone: 1
 --- !u!4 &877494904
