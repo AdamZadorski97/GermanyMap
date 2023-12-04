@@ -9,23 +9,29 @@ using UnityEngine.UIElements;
 
 public class LandController : MonoBehaviour
 {
+    [Header("Components")]
     public GeoJSONFeature geoJSONFeature;
     public LineRenderer lineRenderer;
     public TextMesh textMesh;
     public MeshFilter meshFilter;
     public MeshCollider meshCollider;
+    public MeshRenderer meshRenderer;
 
-    public Material highlightMaterial; // Assign a material with the green color in the Inspector
+    [Header("Materials")]
+    public Material highlightMaterial;
     public Material defaultMaterial;
     public Material clickMaterial;
-    public MeshRenderer meshRenderer;
-    public List<Vector3> realCoordinates = new List<Vector3>();
-    public List<Vector3> realCoordinatesToCentering = new List<Vector3>();
-    public Vector3 center;
-    public string detailedText;
-    public string onMapText;
-    public MapType mapType;
+
+    [Header("Properties")]
+    public List<Vector3> realCoordinates;
+    public List<Vector3> realCoordinatesToCentering;
+    private string detailedText;
     private bool isHighlighted = false;
+    private Sequence onClickSequence;
+    private const float clickThreshold = 0.1f;
+    private Vector3 mouseDownPosition;
+    private Sequence OnClickSeqence;
+    public Vector3 textIntialScale;
     [ShowInInspector]
     public string geometry { get; set; }
     [ShowInInspector]
@@ -71,11 +77,7 @@ public class LandController : MonoBehaviour
     [ShowInInspector]
     public SerializableGeoDate serializableGeoDate { get; set; }
 
-    private Vector3 mouseDownPosition;
-    private const float clickThreshold = 0.1f;
-    private Sequence OnClickSeqence;
-    public Vector3 textIntialScale;
-   
+
 
 
     private void OnMouseDown()
@@ -85,19 +87,14 @@ public class LandController : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (EventSystem.current.IsPointerOverGameObject())
-        {
-            // If it is over a UI element, return early and do nothing
-            return;
-        }
+        if (EventSystem.current.IsPointerOverGameObject()) return;
 
-        // Your existing distance check to determine if it's a click and not a drag
         if (Vector3.Distance(mouseDownPosition, Input.mousePosition) < clickThreshold)
         {
             OnMouseClick();
         }
     }
-    private Vector3 originalPosition;
+
 
     public void SetupText(string onMapText = "", string _detailedText = "")
     {
@@ -112,7 +109,6 @@ public class LandController : MonoBehaviour
         lineRenderer.GetPositions(linePositions);
         textMesh.transform.localPosition = Vector3.zero;
         textMesh.text = onMapText;
-        originalPosition = transform.position;
         CenterPivotAndAdjustLineRenderer();
     }
 
@@ -153,8 +149,6 @@ public class LandController : MonoBehaviour
                         }
                     }
                 }
-
-
             }
             else
             {
@@ -165,23 +159,22 @@ public class LandController : MonoBehaviour
 
     private void Highlight()
     {
-      
-            meshRenderer.enabled = true;
-            OnClickSeqence = DOTween.Sequence();
-            OnClickSeqence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
+        meshRenderer.enabled = true;
 
-            Vector3 textHighlightScale = textMesh.transform.localScale * 1.1f;
-            textMesh.transform.DOScale(textHighlightScale, 0.2f);
-        
+        onClickSequence = DOTween.Sequence();
+        onClickSequence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
+
+        textMesh.transform.DOScale(textIntialScale * 1.1f, 0.2f);
     }
+
 
     public void ResetLand()
     {
-        if (OnClickSeqence != null)
-        {
-            meshRenderer.material = defaultMaterial; // Assuming defaultMaterial is the original material
-            textMesh.transform.DOScale(textIntialScale, 0.2f); // Resetting the scale of textMesh
-        }
+
+
+        meshRenderer.material = defaultMaterial;
+        textMesh.transform.DOScale(textIntialScale, 0.2f);
+
     }
     public void DehighlightOnMouseExit()
     {
@@ -212,51 +205,67 @@ public class LandController : MonoBehaviour
     {
         if (meshFilter == null || lineRenderer == null) return;
 
-        // Calculate the centroid of the mesh
-        Vector3 centroid = Vector3.zero;
-        foreach (Vector3 vertex in meshFilter.mesh.vertices)
-        {
-            centroid += transform.TransformPoint(vertex); // Get the world position of each vertex
-        }
-        centroid /= meshFilter.mesh.vertexCount;
-
-        // Offset to move the pivot to the centroid
+        Vector3 centroid = CalculateCentroid(meshFilter.mesh);
         Vector3 pivotOffset = centroid - transform.position;
 
-        // Adjust vertices of mesh
-        Vector3[] vertices = meshFilter.mesh.vertices;
+        AdjustMeshVertices(meshFilter.mesh, pivotOffset);
+        AdjustLineRendererPositions(lineRenderer, pivotOffset);
+
+        transform.position = centroid;
+        UpdateMeshCollider(meshCollider, meshFilter.mesh);
+    }
+
+    private Vector3 CalculateCentroid(Mesh mesh)
+    {
+        Vector3 centroid = Vector3.zero;
+        Vector3[] vertices = mesh.vertices;
+        int vertexCount = vertices.Length;
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            centroid += transform.TransformPoint(vertices[i]);
+        }
+
+        return centroid / vertexCount;
+    }
+
+    private void AdjustMeshVertices(Mesh mesh, Vector3 pivotOffset)
+    {
+        Vector3[] vertices = mesh.vertices;
         for (int i = 0; i < vertices.Length; i++)
         {
             vertices[i] = transform.InverseTransformPoint(transform.TransformPoint(vertices[i]) - pivotOffset);
         }
-        meshFilter.mesh.vertices = vertices;
-        meshFilter.mesh.RecalculateBounds();
+        mesh.vertices = vertices;
+        mesh.RecalculateBounds();
+    }
 
-        // Adjust line renderer positions
+    private void AdjustLineRendererPositions(LineRenderer lineRenderer, Vector3 pivotOffset)
+    {
         for (int i = 0; i < lineRenderer.positionCount; i++)
         {
             Vector3 linePos = lineRenderer.GetPosition(i);
             lineRenderer.SetPosition(i, transform.InverseTransformPoint(transform.TransformPoint(linePos) - pivotOffset));
         }
+    }
 
-        // Adjust the transform position to reflect the new pivot
-        transform.position = centroid;
-
-        if (meshCollider != null)
+    private void UpdateMeshCollider(MeshCollider collider, Mesh mesh)
+    {
+        if (collider != null)
         {
-            meshCollider.sharedMesh = null;
+            collider.sharedMesh = null;
             try
             {
-                meshCollider.sharedMesh = meshFilter.mesh;
+                collider.sharedMesh = mesh;
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-
-                throw;
+                Debug.LogError("Error updating MeshCollider: " + ex.Message);
             }
-
         }
     }
+
+
     private Vector3 CalculateCenter(List<Vector3> coordinates)
     {
         if (coordinates == null || coordinates.Count == 0)
