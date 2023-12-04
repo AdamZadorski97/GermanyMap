@@ -1,6 +1,4 @@
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,109 +8,87 @@ public class MapUserInterface : MonoBehaviour
     public static MapUserInterface Instance { get; private set; }
 
     [SerializeField]
-    private Button buttonSetKreise;
+    private Button[] mapTypeButtons;  // Array to hold all map type buttons.
     [SerializeField]
-    private Button buttonSetRegierungsbezirke;
+    private Button buttonFindPlz, buttonZoomIn, buttonZoomOut;
     [SerializeField]
-    private Button buttonSetBundeslaender;
+    private Toggle toggleAutoPlzZoom;
     [SerializeField]
-    private Button buttonSetPlz1;
-    [SerializeField]
-    private Button buttonSetPlz2;
-    [SerializeField]
-    private Button buttonSetPlz3;
-    [SerializeField]
-    private Button buttonSetPlz5;
-    [SerializeField]
-    private Button buttonFindPlz;
-    [SerializeField]
-    private Button buttonZoomIn;
-    [SerializeField]
-    private Button buttonZoomOut;
-
-    public Toggle toggleAutoPlzZoom;
-
-    public TMP_Text textPlzNumber;
-
+    private TMP_Text textPlzNumber;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance != null)
         {
-            Destroy(this);
+            Destroy(gameObject);
             return;
         }
         Instance = this;
-
+        DontDestroyOnLoad(gameObject);
     }
 
-
-    void Start()
+    private void Start()
     {
+        InitializeUI();
+    }
 
-        SetupButtons();
+    // Initializes UI elements like buttons and toggles.
+    private void InitializeUI()
+    {
+        SetupMapTypeButtons();
+        SetupZoomButtons();
         SetupToggles();
     }
 
-    private void SetupButtons()
+    // Configures map type buttons with listeners.
+    private void SetupMapTypeButtons()
     {
-
-        buttonSetKreise.onClick.RemoveAllListeners();
-        buttonSetBundeslaender.onClick.RemoveAllListeners();
-        buttonSetRegierungsbezirke.onClick.RemoveAllListeners();
-        buttonSetPlz1.onClick.RemoveAllListeners();
-        buttonSetPlz2.onClick.RemoveAllListeners();
-        buttonSetPlz3.onClick.RemoveAllListeners();
-        buttonSetPlz5.onClick.RemoveAllListeners();
-        buttonFindPlz.onClick.RemoveAllListeners();
-        buttonZoomIn.onClick.RemoveAllListeners();
-        buttonZoomOut.onClick.RemoveAllListeners();
-
-
-        buttonSetKreise.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Kreise);});
-        buttonSetBundeslaender.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Bundeslaender);});
-        buttonSetRegierungsbezirke.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Regierungsbezirke);});
-        buttonSetPlz1.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz1Stelig);});
-        buttonSetPlz2.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz2Stelig); });
-        buttonSetPlz3.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz3Stelig); });
-        buttonSetPlz5.onClick.AddListener(() => { GeoJSONFileReader.Instance.mapSwitch = true; GeoJSONFileReader.Instance.SetupMap(MapType.Plz5Stelig); });
-        buttonFindPlz.onClick.AddListener(() => GeoJSONFileReader.Instance.SearchPlace());
-        buttonZoomIn.onClick.AddListener(() => ZoomIn());
-        buttonZoomOut.onClick.AddListener(() => ZoomOut());
-        ;
+        MapType[] mapTypes = { MapType.Kreise, MapType.Bundeslaender, MapType.Regierungsbezirke, MapType.Plz1Stelig, MapType.Plz2Stelig, MapType.Plz3Stelig, MapType.Plz5Stelig };
+        for (int i = 0; i < mapTypeButtons.Length; i++)
+        {
+            int index = i;  // Prevent closure issue in lambda.
+            mapTypeButtons[i].onClick.AddListener(() => SetupMap(mapTypes[index]));
+        }
     }
 
-
-    public void ZoomIn()
+    // Configures Zoom In and Zoom Out buttons.
+    private void SetupZoomButtons()
     {
-        float targetZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom + 1;
+        buttonZoomIn.onClick.AddListener(() => ChangeZoom(1));
+        buttonZoomOut.onClick.AddListener(() => ChangeZoom(-1));
+        buttonFindPlz.onClick.AddListener(GeoJSONFileReader.Instance.SearchPlace);
+    }
+
+    // Changes map zoom level.
+    private void ChangeZoom(int zoomChange)
+    {
+        float targetZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom + zoomChange;
         DOTween.To(() => GeoJSONFileReader.Instance.OnlineMaps.zoom, x => SetZoom(x), targetZoom, 0.2f).SetEase(Ease.Linear);
-
-        GeoJSONFileReader.Instance.SetActiveRenderers(1);
-        // Other necessary actions...
+        GeoJSONFileReader.Instance.SetActiveRenderers(zoomChange);
     }
 
-    public void ZoomOut()
-    {
-        float targetZoom = GeoJSONFileReader.Instance.OnlineMaps.zoom - 1;
-        DOTween.To(() => GeoJSONFileReader.Instance.OnlineMaps.zoom, x => SetZoom(x), targetZoom, 0.2f).SetEase(Ease.Linear);
-
-        GeoJSONFileReader.Instance.SetActiveRenderers(-1);
-        // Other necessary actions...
-    }
-
+    // Sets the zoom level of the map.
     private void SetZoom(float zoomLevel)
     {
-        OnlineMaps.instance.SetPositionAndZoom(GeoJSONFileReader.Instance.OnlineMaps.position.x, GeoJSONFileReader.Instance.OnlineMaps.position.y, zoomLevel);
+        var onlineMaps = GeoJSONFileReader.Instance.OnlineMaps;
+        onlineMaps.SetPositionAndZoom(onlineMaps.position.x, onlineMaps.position.y, zoomLevel);
     }
 
+    // Sets up map based on type.
+    private void SetupMap(MapType mapType)
+    {
+        GeoJSONFileReader.Instance.mapSwitch = true;
+        GeoJSONFileReader.Instance.SetupMap(mapType);
+    }
 
+    // Configures the toggle for auto zoom.
     private void SetupToggles()
     {
         toggleAutoPlzZoom.isOn = GeoJSONFileReader.Instance.autoPlzZoom;
-        toggleAutoPlzZoom.onValueChanged.AddListener(delegate { GeoJSONFileReader.Instance.SetAutoPlzZoom(); });
+        toggleAutoPlzZoom.onValueChanged.AddListener(GeoJSONFileReader.Instance.SetAutoPlzZoom);
     }
 
+    // Sets the displayed text.
     public void SetText(string message)
     {
         textPlzNumber.text = message;

@@ -46,12 +46,4 @@ public class MapMouseController : MonoBehaviour
             }
         }
     }
-
-    // Pseudo-method to determine if two areas are overlapping
-    private bool IsOverlapping(LandController area1, LandController area2)
-    {
-        // Implement logic to determine if two areas are overlapping
-        // This could be based on mesh bounds or collider intersections
-        return false; // Placeholder return
-    }
 }

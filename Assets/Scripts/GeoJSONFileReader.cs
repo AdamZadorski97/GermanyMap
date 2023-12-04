@@ -160,9 +160,9 @@ public class GeoJSONFileReader : MonoBehaviour
 
 
 
-    public void SetAutoPlzZoom()
+    public void SetAutoPlzZoom(bool isOn)
     {
-        autoPlzZoom = MapUserInterface.Instance.toggleAutoPlzZoom.isOn;
+        autoPlzZoom = isOn;
     }
 
     private void SetupMapOnStart()
