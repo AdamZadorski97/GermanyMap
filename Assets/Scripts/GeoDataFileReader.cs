@@ -7,25 +7,24 @@ using UnityEngine;
 public class SerializableGeoDate
 {
     public int id;
-    public string bundesland_name;
-    public string bundesland_nutscode;
-    public string regierungsbezirk_name;
-    public string regierungsbezirk_nutscode_kreis;
-    public string kreisname_kreis;
-    public string kreis_typ;
-    public string kreis_nutscode;
-    public string gemeinde_name;
-    public string gemeinde_typ;
-    public string gemeinde_ags;
-    public string gemeinde_rs;
-    public string gemeinde_lat;
-    public string gemeinde_lon;
-    public string ort_id;
-    public string ort_name;
-    public string ort_lat;
-    public string ort_lon;
-    public int postleitzahl;
-    public string strasse_name;     
+    public string BUNDESLAND_NAME;
+    public string BUNDESLAND_NUTSCODE;
+    public string REGIERUNGSBEZIRK_NAME;
+    public string REGIERUNGSBEZIRK_NUTSCODE;
+    public string KREIS_NAME;
+    public string KREIS_TYP;
+    public string KREIS_NUTSCODE;
+    public string GEMEINDE_NAME;
+    public string GEMEINDE_TYP;
+    public string GEMEINDE_AGS;
+    public string GEMEINDE_RS;
+    public string GEMEINDE_LAT;
+    public string GEMEINDE_LON;
+    public string ORT_ID;
+    public string ORT_NAME;
+    public string ORT_LAT;
+    public string ORT_LON;
+    public int POSTLEITZAHL;  
 }
 
 public class GeoDataFileReader : MonoBehaviour
@@ -35,11 +34,13 @@ public class GeoDataFileReader : MonoBehaviour
 
     private void Awake()
     {
-        string csvFilePath = "2720_geodatendeutschland_3012_202309041.csv";
+        string csvFilePath = "4673_geodatendeutschland_1001_20210723.csv";
         string path = Path.Combine(Application.streamingAssetsPath, csvFilePath);
         geoDates = ReadDataFromCSV(path);
+
+       
     }
-    
+
 
     private List<SerializableGeoDate> ReadDataFromCSV(string filePath)
     {
@@ -63,25 +64,24 @@ public class GeoDataFileReader : MonoBehaviour
                         SerializableGeoDate record = new SerializableGeoDate
                         {
                             id = int.Parse(dataParts[0]),
-                            bundesland_name = dataParts[1],
-                            regierungsbezirk_name = dataParts[2],
-                            bundesland_nutscode = dataParts[3],
-                            regierungsbezirk_nutscode_kreis = dataParts[4],
-                            kreisname_kreis = dataParts[5],
-                            kreis_typ = dataParts[6],
-                            kreis_nutscode = dataParts[7],
-                            gemeinde_name = dataParts[8],
-                            gemeinde_typ = dataParts[9],
-                            gemeinde_ags = dataParts[10],
-                            gemeinde_rs = dataParts[11],
-                            gemeinde_lat = dataParts[12],
-                            gemeinde_lon = dataParts[13],
-                            ort_id = dataParts[14],
-                            ort_name = dataParts[15],
-                            ort_lat = dataParts[16],
-                            ort_lon = dataParts[17],
-                            postleitzahl = int.Parse(dataParts[18]),
-                            strasse_name = dataParts[19]
+                            BUNDESLAND_NAME = dataParts[1],
+                            BUNDESLAND_NUTSCODE = dataParts[2],
+                            REGIERUNGSBEZIRK_NAME = dataParts[3],
+                            REGIERUNGSBEZIRK_NUTSCODE = dataParts[4],
+                            KREIS_NAME = dataParts[5],
+                            KREIS_TYP = dataParts[6],
+                            KREIS_NUTSCODE = dataParts[7],
+                            GEMEINDE_NAME = dataParts[8],
+                            GEMEINDE_TYP = dataParts[9],
+                            GEMEINDE_AGS = dataParts[10],
+                            GEMEINDE_RS = dataParts[11],
+                            GEMEINDE_LAT = dataParts[12],
+                            GEMEINDE_LON = dataParts[13],
+                            ORT_ID = dataParts[14],
+                            ORT_NAME = dataParts[15],
+                            ORT_LAT = dataParts[16],
+                            ORT_LON = dataParts[17],
+                            POSTLEITZAHL = int.Parse(dataParts[18]),
                         };
                         records.Add(record);
                     }

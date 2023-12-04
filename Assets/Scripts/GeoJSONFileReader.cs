@@ -129,7 +129,7 @@ public class GeoJSONFileReader : MonoBehaviour
 
     private IEnumerator<float> ZoomWait(int value)
     {
-         yield return Timing.WaitForOneFrame;
+        yield return Timing.WaitForOneFrame;
         Transform land = ObjectPooler.Instance.landParrent.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0).transform;
         {
             if (value == -1)
@@ -188,13 +188,12 @@ public class GeoJSONFileReader : MonoBehaviour
     IEnumerator SetupMapCoroutine(MapType type)
     {
         if (currentType == type) yield break;
-        Debug.Log("ZOOOOOOM");
 
         yield return new WaitForSeconds(0.25f);
 
         currentType = type;
 
-        ResetMapFlags();
+
 
         switch (type)
         {
@@ -239,16 +238,7 @@ public class GeoJSONFileReader : MonoBehaviour
     }
 
 
-    private void ResetMapFlags()
-    {
-        isKreise = false;
-        isRegierungsbezirke = false;
-        isBundeslaender = false;
-        isPlz1Stelig = false;
-        isPlz2Stelig = false;
-        isPlz3Stelig = false;
-        isPlz5Stelig = false;
-    }
+
 
 
     public MapTransformProperties GetMapProperties(int zoom)
@@ -367,9 +357,12 @@ public class GeoJSONFileReader : MonoBehaviour
             Timing.KillCoroutines(geoJSONProcessingHandle);
             processDone = true;
         }
+
         foreach (GameObject land in landPrefabsClones)
         {
+
             ObjectPooler.Instance.ReturnObjectToPool(land);
+
         }
         landPrefabsClones.Clear();
         LandControllersSearch.Clear();
@@ -538,7 +531,7 @@ public class GeoJSONFileReader : MonoBehaviour
                                 continue; // Skip this LinearRing
                             }
 
-                            Debug.Log(feature.properties.NAME_3 + " " + lineRendererPositions.Count);
+                            //Debug.Log(feature.properties.NAME_3 + " " + lineRendererPositions.Count);
                             GameObject land = ObjectPooler.Instance.GetPooledObject();
                             land.name = "MultiPolygon";
 
@@ -691,13 +684,15 @@ public class GeoJSONFileReader : MonoBehaviour
         {
             // Assuming feature.properties.plz is a string, convert it to int for comparison
             int plz = int.Parse(feature.properties.plz);
-            SerializableGeoDate matchedGeoDate = geoDataFileReader.geoDates.Find(geoDate => geoDate.postleitzahl == plz);
+            landController.plz = feature.properties.plz;
+            SerializableGeoDate matchedGeoDate = geoDataFileReader.geoDates.Find(geoDate => geoDate.POSTLEITZAHL == plz);
+
 
             if (matchedGeoDate != null)
             {
-                string regierungsbezirkName = matchedGeoDate.regierungsbezirk_name;
-                string kreisName = matchedGeoDate.kreisname_kreis;
-                string bundeslandName = matchedGeoDate.bundesland_name;
+                string regierungsbezirkName = matchedGeoDate.REGIERUNGSBEZIRK_NAME;
+                string kreisName = matchedGeoDate.KREIS_NAME;
+                string bundeslandName = matchedGeoDate.BUNDESLAND_NAME;
 
                 string displayText = $"plz: {plz}\nregierungsbezirk: {regierungsbezirkName}\nKreise: {kreisName}\nbundesland: {bundeslandName}\n";
                 displayText = displayText.Replace(",", "");
@@ -712,6 +707,7 @@ public class GeoJSONFileReader : MonoBehaviour
             }
             else
             {
+                Debug.Log($"Can't find matching postalcode {feature.properties.plz}");
                 // Handle the case where no matching geo date is found
                 landController.SetupText($"{plz}", $"{plz}");
             }
@@ -722,18 +718,16 @@ public class GeoJSONFileReader : MonoBehaviour
 
         if (currentType == MapType.Kreise)
         {
-
-            landController.NAME_3 = feature.properties.NAME_3;
-
+            landController.KREIS_Name = feature.properties.NAME_3;
         }
         if (currentType == MapType.Bundeslaender)
         {
-            landController.name = feature.properties.name;
+            landController.Bundesland = feature.properties.name;
 
         }
         if (currentType == MapType.Regierungsbezirke)
         {
-            landController.NAME_2 = feature.properties.NAME_2;
+            landController.Regierungsbezirk = feature.properties.NAME_2;
 
         }
     }
@@ -745,15 +739,15 @@ public class GeoJSONFileReader : MonoBehaviour
 
     public List<LandController> FindAllByKreise(List<LandController> features, string kreise)
     {
-        return features.Where(feature => feature.NAME_3.ToLower() != null && feature.NAME_3.ToLower() == kreise.ToLower()).ToList();
+        return features.Where(feature => feature.KREIS_Name.ToLower() != null && feature.KREIS_Name.ToLower() == kreise.ToLower()).ToList();
     }
     public List<LandController> FindAllByBundesLander(List<LandController> features, string bundesLander)
     {
-        return features.Where(feature => feature.name.ToLower() != null && feature.name.ToLower() == bundesLander.ToLower()).ToList();
+        return features.Where(feature => feature.Bundesland.ToLower() != null && feature.Bundesland.ToLower() == bundesLander.ToLower()).ToList();
     }
     public List<LandController> FindAllByRegierungsbezirke(List<LandController> features, string regierungsbezirke)
     {
-        return features.Where(feature => feature.NAME_2.ToLower() != null && feature.NAME_2.ToLower() == regierungsbezirke.ToLower()).ToList();
+        return features.Where(feature => feature.Regierungsbezirk.ToLower() != null && feature.Regierungsbezirk.ToLower() == regierungsbezirke.ToLower()).ToList();
     }
 
 
@@ -765,7 +759,7 @@ public class GeoJSONFileReader : MonoBehaviour
         }
 
 
-            string searchText = destinationInput.text;
+        string searchText = destinationInput.text;
         int zoom = 0; ;
         List<LandController> matchingControllers = new List<LandController>();
 
@@ -827,20 +821,6 @@ public class GeoJSONFileReader : MonoBehaviour
         }
     }
 
-    private void UpdateRegionsGeoData(GameObject land, List<SerializableGeoDate> aSerializableGeoDate, int number)
-    {
-        LandController landController = land.GetComponent<LandController>();
-        if (landController.plz == aSerializableGeoDate[number].bundesland_nutscode)
-        {
-            landController.plz = aSerializableGeoDate[number].bundesland_nutscode;
-            landController.serializableGeoDate = aSerializableGeoDate[number];
-            //rest of data
-        }
-        else
-        {
-            Debug.Log("postal code match failed " + landController.plz);
-        }
-    }
 
     private void UpdatePositionLists(List<List<double[]>> coordinates, ref List<Vector3> lineRendererPositions, ref List<Vector3> geographicalPositions,
      ref List<Vector3> innerMeshPositions, ref List<Vector3> innerGeographicalPositions)
@@ -906,19 +886,43 @@ public class GeoJSONFileReader : MonoBehaviour
                 textOnMap = landController.plz;
                 break;
             case MapType.Kreise:
-                // For Kreise, use NAME_3 as the identifier
-                textDetailed = $"Kreis: {landController.NAME_3}";
-                textOnMap = landController.NAME_3;
+                SerializableGeoDate matchedGeoDate = geoDataFileReader.geoDates.Find(geoDate => geoDate.KREIS_NAME == landController.KREIS_Name);
+                if (matchedGeoDate != null)
+                {
+                    string regierungsbezirkName = matchedGeoDate.REGIERUNGSBEZIRK_NAME;
+                    string kreisName = matchedGeoDate.KREIS_NAME;
+                    string bundeslandName = matchedGeoDate.BUNDESLAND_NAME;
+
+                    textDetailed = $"regierungsbezirk: {regierungsbezirkName}\nKreise: {kreisName}\nbundesland: {bundeslandName}\n";
+                    textDetailed = textDetailed.Replace(",", "");
+                    textOnMap = kreisName;
+                }
+                else
+                {
+                    textDetailed = landController.KREIS_Name;
+                    textOnMap = landController.KREIS_Name;
+                }
                 break;
             case MapType.Bundeslaender:
-                // For Bundesländer, use the name
-                textDetailed = $"Bundesland: {landController.name}";
-                textOnMap = landController.name;
+                textDetailed = $"Bundesland: {landController.Bundesland}";
+                textOnMap = landController.Bundesland;
                 break;
             case MapType.Regierungsbezirke:
-                // For Regierungsbezirke, use NAME_2
-                textDetailed = $"Regierungsbezirk: {landController.NAME_2}";
-                textOnMap = landController.NAME_2;
+                SerializableGeoDate matchedGeoDateRegierungsbezirke = geoDataFileReader.geoDates.Find(geoDate => geoDate.REGIERUNGSBEZIRK_NAME == landController.Regierungsbezirk);
+                if (matchedGeoDateRegierungsbezirke != null)
+                {
+                    string regierungsbezirkName = matchedGeoDateRegierungsbezirke.REGIERUNGSBEZIRK_NAME;
+                    string bundeslandName = matchedGeoDateRegierungsbezirke.BUNDESLAND_NAME;
+
+                    textDetailed = $"Regierungsbezirk: {regierungsbezirkName}\nBundesland: {bundeslandName}\n";
+                    textDetailed = textDetailed.Replace(",", "");
+                    textOnMap = bundeslandName;
+                }
+                else
+                {
+                    textDetailed = $"Regierungsbezirk: {landController.Regierungsbezirk}";
+                    textOnMap = landController.Regierungsbezirk;
+                }
                 break;
             default:
                 textDetailed = ""; // Default case, no text
@@ -967,11 +971,11 @@ public class GeoJSONFileReader : MonoBehaviour
             case MapType.Plz5Stelig:
                 return LandControllersSearch.GroupBy(controller => controller.plz);
             case MapType.Kreise:
-                return LandControllersSearch.GroupBy(controller => controller.NAME_3);
+                return LandControllersSearch.GroupBy(controller => controller.KREIS_Name);
             case MapType.Bundeslaender:
-                return LandControllersSearch.GroupBy(controller => controller.name);
+                return LandControllersSearch.GroupBy(controller => controller.Bundesland);
             case MapType.Regierungsbezirke:
-                return LandControllersSearch.GroupBy(controller => controller.NAME_2);
+                return LandControllersSearch.GroupBy(controller => controller.Regierungsbezirk);
             default:
                 return new List<IGrouping<string, LandController>>();
         }
@@ -1055,11 +1059,11 @@ public class GeoJSONFileReader : MonoBehaviour
             case MapType.Plz5Stelig:
                 return landController.plz;
             case MapType.Kreise:
-                return landController.NAME_3;
+                return landController.KREIS_Name;
             case MapType.Bundeslaender:
-                return landController.name;
+                return landController.Bundesland;
             case MapType.Regierungsbezirke:
-                return landController.NAME_2;
+                return landController.Regierungsbezirk;
             default:
                 return "";
         }

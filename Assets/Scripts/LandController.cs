@@ -24,6 +24,8 @@ public class LandController : MonoBehaviour
     public Vector3 center;
     public string detailedText;
     public string onMapText;
+    public MapType mapType;
+    private bool isHighlighted = false;
     [ShowInInspector]
     public string geometry { get; set; }
     [ShowInInspector]
@@ -40,7 +42,7 @@ public class LandController : MonoBehaviour
     [ShowInInspector]
     public string ISO { get; set; }
     [ShowInInspector]
-    public string name { get; set; }
+    public string Bundesland { get; set; }
     public string NAME_0 { get; set; }
     [ShowInInspector]
     public int ID_1 { get; set; }
@@ -49,11 +51,11 @@ public class LandController : MonoBehaviour
     [ShowInInspector]
     public int ID_2 { get; set; }
     [ShowInInspector]
-    public string NAME_2 { get; set; }
+    public string Regierungsbezirk { get; set; }
     [ShowInInspector]
     public int ID_3 { get; set; }
     [ShowInInspector]
-    public string NAME_3 { get; set; }
+    public string KREIS_Name { get; set; }
     [ShowInInspector]
     public string NL_NAME_3 { get; set; }
     [ShowInInspector]
@@ -73,21 +75,14 @@ public class LandController : MonoBehaviour
     private const float clickThreshold = 0.1f;
     private Sequence OnClickSeqence;
     public Vector3 textIntialScale;
-    private void OnMouseEnter()
-    {
-        HighlightOnMouseEnter();
-    }
+   
 
-
-    private void OnMouseExit()
-    {
-        DehighlightOnMouseExit();
-    }
 
     private void OnMouseDown()
     {
         mouseDownPosition = Input.mousePosition;
     }
+
     private void OnMouseUp()
     {
         if (EventSystem.current.IsPointerOverGameObject())
@@ -139,38 +134,45 @@ public class LandController : MonoBehaviour
 
     public void HighlightOnMouseEnter()
     {
-        MapUserInterface.Instance.SetText(detailedText);
-        string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
-
-
-        if (identifier != null)
+        if (!isHighlighted)
         {
-            if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
+            isHighlighted = true;
+            MapUserInterface.Instance.SetText(detailedText);
+            string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
+
+
+            if (identifier != null)
             {
-                foreach (var controller in landControllers)
+                if (GeoJSONFileReader.Instance.identifierToLandControllersMap != null)
                 {
-                    controller.Highlight();
+                    if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
+                    {
+                        foreach (var controller in landControllers)
+                        {
+                            controller.Highlight();
+                        }
+                    }
                 }
+
+
             }
-
+            else
+            {
+                Highlight();
+            }
         }
-        else
-        {
-            Highlight();
-        }
-
     }
 
     private void Highlight()
     {
+      
+            meshRenderer.enabled = true;
+            OnClickSeqence = DOTween.Sequence();
+            OnClickSeqence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
 
-
-        meshRenderer.enabled = true;
-        OnClickSeqence = DOTween.Sequence();
-        OnClickSeqence.Append(meshRenderer.material.DOColor(highlightMaterial.color, 0.25f));
-
-        Vector3 textHighlightScale = textMesh.transform.localScale * 1.1f;
-        textMesh.transform.DOScale(textHighlightScale, 0.2f);
+            Vector3 textHighlightScale = textMesh.transform.localScale * 1.1f;
+            textMesh.transform.DOScale(textHighlightScale, 0.2f);
+        
     }
 
     public void ResetLand()
@@ -183,21 +185,26 @@ public class LandController : MonoBehaviour
     }
     public void DehighlightOnMouseExit()
     {
-        meshRenderer.enabled = false;
-        string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
-        if (identifier != null)
+        if (isHighlighted)
         {
-            if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
+            meshRenderer.enabled = false;
+            string identifier = GeoJSONFileReader.Instance.GetIdentifierBasedOnCurrentType(this);
+            if (identifier != null)
             {
-                foreach (var controller in landControllers)
+                if (GeoJSONFileReader.Instance.identifierToLandControllersMap.TryGetValue(identifier, out var landControllers))
                 {
-                    controller.ResetLand();
+                    foreach (var controller in landControllers)
+                    {
+                        isHighlighted = false;
+                        controller.ResetLand();
+                    }
                 }
             }
-        }
-        else
-        {
-            ResetLand();
+            else
+            {
+                isHighlighted = false;
+                ResetLand();
+            }
         }
     }
 

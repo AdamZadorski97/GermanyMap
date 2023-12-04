@@ -173,11 +173,11 @@ MonoBehaviour:
     linewidthMultiplier: 1
     textSizeMultiplier: 0
   zoomProperties:
-  - zoomLevelToSwitch: 13
+  - zoomLevelToSwitch: 10
     mapType: 4
-  - zoomLevelToSwitch: 11
-    mapType: 3
   - zoomLevelToSwitch: 9
-    mapType: 2
+    mapType: 5
+  - zoomLevelToSwitch: 8
+    mapType: 6
   - zoomLevelToSwitch: 7
-    mapType: 1
+    mapType: 7
